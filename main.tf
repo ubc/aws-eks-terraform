@@ -172,6 +172,19 @@ module "eks" {
   map_accounts                         = var.map_accounts
 }
 
+module "alb_ingress_controller" {
+  source  = "iplabs/alb-ingress-controller/kubernetes"
+  version = "3.4.0"
+
+  depends_on = [module.eks.cluster_id]
+
+  k8s_cluster_type = "eks"
+  k8s_namespace    = local.k8s_service_account_namespace
+
+  aws_region_name  = var.region
+  k8s_cluster_name = local.cluster_name
+}
+
 resource "aws_efs_file_system" "home" {
 }
 
