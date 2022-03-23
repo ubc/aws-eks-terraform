@@ -1,8 +1,7 @@
 module "iam_assumable_role_admin" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version                       = "~> v2.18.0"
   create_role                   = true
-  role_name                     = "cluster-autoscaler"
+  role_name                     = "cluster-autoscaler-${random_string.suffix.result}"
   provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
   role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
@@ -55,4 +54,3 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
     }
   }
 }
-
