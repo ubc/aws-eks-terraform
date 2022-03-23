@@ -13,7 +13,7 @@ $ terraform apply
 If the cluster deploys OK, add the config to your `~/.kube/config`
 
 ```bash
-$ aws --profile=iana --region=us-west-2 eks list-clusters
+$ aws --profile=urn:amazon:webservices --region=us-west-2 eks list-clusters
 ...
 {
     "clusters": [
