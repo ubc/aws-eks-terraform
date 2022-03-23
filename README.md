@@ -21,7 +21,7 @@ $ aws --profile=iana --region=us-west-2 eks list-clusters
     ]
 }
 
-$ aws --profile=iana --region=us-west-2 eks update-kubeconfig \
+$ aws --profile=urn:amazon:webservices --region=us-west-2 eks update-kubeconfig \
   --name=syzygy-eks-tJSxgQlx
 ```
 
