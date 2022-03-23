@@ -1,10 +1,10 @@
 variable "region" {
-  default = "us-west-2c"
+  default = "us-west-2"
 }
 
 variable "profile" {
   description = "AWS profile to use for authentication"
-  default     = "default"
+  default     = "urn:amazon:webservices"
 }
 
 variable "worker_group_user_node_type" {
