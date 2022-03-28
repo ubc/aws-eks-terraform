@@ -52,8 +52,8 @@ wget -c https://github.com/Versent/saml2aws/releases/download/v${saws_ver}/saml2
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod u+x ./saml2aws
 chmod u+x ./kubectl
-mv ./kubectl /usr/share/bin/
-mv ./saml2aws /usr/share/bin/
+mv ./kubectl /usr/local/bin/
+mv ./saml2aws /usr/local/bin/
 hash -r
 
 # Clean Up
