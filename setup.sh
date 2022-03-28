@@ -50,6 +50,8 @@ apt install awscli terraform apt-transport-https helm --yes
 saws_ver=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1)
 wget -c https://github.com/Versent/saml2aws/releases/download/v${saws_ver}/saml2aws_${saws_ver}_linux_amd64.tar.gz -O - | tar -xzv -C ./
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chown 1000:1000 ./kubectl
+chown 1000:1000 ./saml2aws
 chmod u+x ./saml2aws
 chmod u+x ./kubectl
 mv ./kubectl /usr/local/bin/
