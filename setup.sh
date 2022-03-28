@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# EKS Jumpbox/Bastian Install & Setup Script
+# UBC EKS Jumpbox/Bastian Install & Setup Script
 # By Rahim Khoja (rahim.khoja@ubc.ca)
 
 echo
