@@ -43,8 +43,8 @@ curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 curl -fsSL https://baltocdn.com/helm/signing.asc | apt-key add -
 apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 apt-add-repository "deb https://baltocdn.com/helm/stable/debian/ all main"
-apt upgrade -yes
-apt install awscli terraform apt-transport-https helm -yes
+apt upgrade --yes
+apt install awscli terraform apt-transport-https helm --yes
 
 # Binary Installs
 saws_ver=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1)
