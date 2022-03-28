@@ -1,3 +1,23 @@
+## Requirements
+
+1. LThub UBC AWS account access.
+
+2. saml2aws (https://github.com/Versent/saml2aws)
+
+3. AWS Cli (https://github.com/aws/aws-cli)
+
+4. kubectl (https://kubernetes.io/docs/tasks/tools/)
+
+5. helm (https://helm.sh/docs/intro/install/)
+
+6. terraform (https://learn.hashicorp.com/tutorials/terraform/install-cli)
+
+
+
+
+
+
+
 I've added a policy in IAM called syzygy-k8s-terraform, a snapshot (possibly out
 of date) of the config is available in
 [./docs/syzygy-k8s-terraform.json](./docs/syzygy-k8s-terraform.json). Assign
