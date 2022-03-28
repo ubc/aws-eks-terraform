@@ -4,7 +4,7 @@
 # By Rahim Khoja (rahim.khoja@ubc.ca)
 
 echo
-echo "---EKS Jumpbox/Bastian Install Script---"
+echo "---UBC EKS Jumpbox/Bastian Ubuntu Install Script---"
 echo "---By: Rahim Khoja (rahim.khoja@ubc.ca)---"
 echo
 
@@ -30,6 +30,13 @@ trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 if [[ $EUID -ne 0 ]];
 then
     echo "This script must be run with sudo" 1>&2
+    exit 1
+fi
+
+# Simple Check to Confirm the OS is Ubuntu (Checks Kernel Name)
+if [[ -z "$(uname -a | grep Ubuntu)" ]]; 
+then
+    echo "This script must be run on a Ubuntu operating system" 1>&2
     exit 1
 fi
 
