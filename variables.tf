@@ -7,50 +7,52 @@ variable "profile" {
   default     = "urn:amazon:webservices"
 }
 
-variable "worker_group_user_node_type" {
+variable "eks_node_type" {
   description = "AWS Node type for user pod nodes"
-  default     = "t2.medium"
+  default     = "m5.xlarge"
 }
 
-variable "worker_group_user_asg_min_size" {
-  description = "Minimum size for user node ASG"
+variable "cluster_base_name" {
+  description = "Base/Prefix Name of EKS Cluster"
+  default     = "UBC-EKS"
+}
+
+variable "ug_min_size" {
+  description = "Minimum size for Uuser node"
   default     = "0"
 }
 
-variable "worker_group_user_asg_max_size" {
-  description = "Maximum size for user node ASG"
+variable "ug_max_size" {
+  description = "Maximum size for User node"
   default     = "4"
 }
 
-variable "worker_group_user_asg_desired_capacity" {
-  description = "Desired capacity for user node ASG"
+variable "ug_desired_cap" {
+  description = "Desired capacity for User node"
   default     = "0"
 }
 
-variable "map_accounts" {
-  description = "Additional AWS account numbers to add to the aws-auth configmap."
-  type        = list(string)
-
-  default = []
+variable "wg_min_size" {
+  description = "Minimum size for Worker node"
+  default     = "0"
 }
 
-variable "map_roles" {
-  description = "Additional IAM roles to add to the aws-auth configmap."
-  type = list(object({
-    rolearn  = string
-    username = string
-    groups   = list(string)
-  }))
-
-  default = []
+variable "wg_max_size" {
+  description = "Maximum size for Worker node"
+  default     = "4"
 }
 
-variable "map_users" {
-  description = "Additional IAM users to add to the aws-auth configmap."
-  type = list(object({
-    userarn  = string
-    username = string
-    groups   = list(string)
-  }))
-  default = []
+variable "wg_desired_cap" {
+  description = "Desired capacity for Worker node"
+  default     = "0"
+}
+
+variable "tag_project_name" {
+  description = "Project Name Tag"
+  default     = "Project Name"
+}
+
+variable "tag_enviroment_name" {
+  description = "Enviroment Name Tag"
+  default     = "UBC-Dev"
 }
