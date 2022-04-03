@@ -18,6 +18,23 @@ provider "null" {
 provider "template" {
 }
 
+data "aws_caller_identity" "current" {}
+
+data "aws_availability_zones" "available" {}
+
+resource "null_resource" "apply" {
+  triggers = {
+    cmd_patch  = <<-EOT
+      kubectl patch configmap/aws-auth --patch "${module.eks.aws_auth_configmap_yaml}" -n kube-system
+    EOT
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = self.triggers.cmd_patch
+  }
+}
+
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
@@ -32,13 +49,14 @@ data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
 }
 
-data "aws_availability_zones" "available" {
-}
-
 locals {
-  cluster_name = "ubc-eks-${random_string.suffix.result}"
+  cluster_name = "${var.cluster_base_name}-${random_string.suffix.result}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
+  tags = {
+    Environment = "${var.tag_enviroment_name}"
+    project     = "${var.tag_project_name}"
+  }
 }
 
 resource "random_string" "suffix" {
@@ -73,8 +91,16 @@ resource "aws_security_group" "all_worker_mgmt" {
     cidr_blocks = [
       "10.0.0.0/8",
       "172.16.0.0/12",
-      "192.168.0.0/16",
+      "192.168.0.0/16"
     ]
+  }
+}
+
+resource "null_resource" "kube_config_create" {
+  depends_on = [module.eks.cluster_id]
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = "/usr/bin/aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --profile urn:amazon:webservices && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
 
@@ -92,97 +118,81 @@ module "vpc" {
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "project" = "jupyterhub"
-
+    "project" = "${local.tags.project}"
   }
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
-    "project"                                      = "jupyterhub"
+    "project"                                      = "${local.tags.project}"
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
-    "project"                                     = "jupyterhub"
+    "project"                                     = "${local.tags.project}"
   }
 }
 
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
-  version      = "15.2.0"
   cluster_version = "1.21"
-
-  worker_ami_name_filter_windows = "*"
-
+  version = "18.17.0"
   cluster_name = local.cluster_name
 
-  kubeconfig_aws_authenticator_env_variables = {
-    AWS_PROFILE = var.profile
-  }
-  subnets      = module.vpc.private_subnets
+  subnet_ids = module.vpc.private_subnets
 
-  tags = {
-    Environment = "ubc"
-    GithubRepo  = "terraform-aws-eks"
-    GithubOrg   = "terraform-aws-modules"
-    project     = "jupyterhub"
-  }
+  tags = merge(
+    local.tags,
+    {
+      GithubRepo = "terraform-aws-eks"
+      GithubOrg = "terraform-aws-modules"
+    }
+  )
 
   vpc_id = module.vpc.vpc_id
 
-  enable_irsa   = true
+  enable_irsa = true
 
-  worker_groups = [
+  eks_managed_node_group_defaults = {
+    disk_size = 72
+    instance_types = [var.eks_node_type]
+  }
+
+  eks_managed_node_groups = [
     {
-      name                          = "worker-group-1"
-      instance_type                 = "t2.medium"
-      asg_desired_capacity          = 2
+      name                      = "wg-${local.cluster_name}-1"
+      desired_capacity          = var.wg_desired_cap
+      min_size                  = var.wg_min_size
+      max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      launch_template_name = ""
+      tags = merge(
+        local.tags,
+        {
+          "k8s.io/cluster-autoscaler/enabled"               = "true"
+          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
+        }
+      )
     },
     {
-      name                          = "user-group-1"
-      instance_type                 = var.worker_group_user_node_type
-      asg_desired_capacity          = var.worker_group_user_asg_desired_capacity
-      asg_min_size                  = var.worker_group_user_asg_min_size
-      asg_max_size                  = var.worker_group_user_asg_max_size
-      kubelet_extra_args            = "--node-labels=hub.jupyter.org/node-purpose=user --register-with-taints=hub.jupyter.org/dedicated=user:NoSchedule"
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
-      tags = [
+      name                      = "ug-${local.cluster_name}-1"
+      desired_capacity          = var.ug_desired_cap
+      min_size                  = var.ug_min_size
+      max_size                  = var.ug_max_size
+      launch_template_name = ""
+      tags = merge(
+        local.tags,
         {
-          "key"                     = "k8s.io/cluster-autoscaler/enabled"
-          "propagate_at_launch"     = "false"
-          "value"                   = "true"
-          "project"                 = "jupyterhub"
-        },
-        {
-          "key"                     = "k8s.io/cluster-autoscaler/${local.cluster_name}"
-          "propagate_at_launch"     = "false"
-          "value"                   = "true"
-          "application"             = "true"
+          "k8s.io/cluster-autoscaler/enabled"               = "true"
+          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
         }
-      ]
+      )
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     }
   ]
 
-  worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
-  map_roles                            = var.map_roles
-  map_users                            = var.map_users
-  map_accounts                         = var.map_accounts
-}
-
-module "alb_ingress_controller" {
-  source  = "iplabs/alb-ingress-controller/kubernetes"
-  version = "3.4.0"
-
-  depends_on = [module.eks.cluster_id]
-
-  k8s_cluster_type = "eks"
-  k8s_namespace    = local.k8s_service_account_namespace
-
-  aws_region_name  = var.region
-  k8s_cluster_name = local.cluster_name
+  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
 }
 
 resource "aws_efs_file_system" "home" {
