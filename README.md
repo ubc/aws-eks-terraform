@@ -30,6 +30,15 @@
 
 ### Deploy Cluster
 
+### (Optional) Install Helm RBAC
+
+ Some HELM Deployments require Roles to be created. (see the [helm RBAC documentation](https://helm.sh/docs/using_helm/#role-based-access-control)
+ 
+   ```
+   $ kubectl create -f docs/rbac-config.yaml
+   $ helm init --service-account tiller --history-max 200
+   ```
+
 ### (Optional) Destroy Cluster
 
 ## Support
