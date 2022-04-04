@@ -1,6 +1,12 @@
+# UBC (LTHub) Terraform EKS Cluster Deployment
+
+## Description
+
+
+
 ## Requirements
 
-1. LThub UBC AWS account access.
+1. LThub UBC AWS account access. (Or a regular AWS Admin account)
 
 2. saml2aws (https://github.com/Versent/saml2aws)
 
@@ -12,9 +18,13 @@
 
 6. terraform (https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
+7. a client system with internet access. 
 
+## Deployment 
 
+## Support
 
+## Refrences
 
 
 
