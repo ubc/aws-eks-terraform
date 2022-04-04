@@ -2,8 +2,6 @@
 
 ## Description
 
-
-
 ## Requirements
 
 1. LThub UBC AWS account access. (Or a regular AWS Admin account)
@@ -21,6 +19,18 @@
 7. a client system with internet access. 
 
 ## Deployment 
+
+### Setup Client
+
+### Clone Repo
+
+### Login via Saml2AWS or AWS CLI Keys
+
+### Update Variables File
+
+### Deploy Cluster
+
+### (Optional) Destroy Cluster
 
 ## Support
 
