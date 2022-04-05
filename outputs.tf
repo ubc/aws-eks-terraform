@@ -9,6 +9,11 @@ output "region" {
   value       = var.region
 }
 
+output "profile" {
+  description = "AWS profile."
+  value       = var.profile
+}
+  
 output "efs_id" {
   description = "AWS EFS FileSystemID"
   value       = aws_efs_file_system.home.id
