@@ -65,7 +65,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_security_group" "worker_group_mgmt_one" {
-  name_prefix = "worker_group_mgmt_one"
+  name_prefix = "wg-manager-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -80,7 +80,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 }
 
 resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix = "all_worker_management"
+  name_prefix = "all-worker-mgmt-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -107,11 +107,11 @@ resource "null_resource" "kube_config_create" {
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
 
-  name                 = "eks-vpc"
-  cidr                 = "10.1.0.0/16"
+  name                 = "eks-vpc-${local.cluster_name}"
+  cidr                 = var.vpc_cidr
   azs                  = data.aws_availability_zones.available.names
-  private_subnets      = ["10.1.1.0/24", "10.1.2.0/24"]
-  public_subnets       = ["10.1.101.0/24", "10.1.102.0/24"]
+  private_subnets      = var.vpc_private_subnets
+  public_subnets       = var.vpc_public_subnets
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
@@ -207,7 +207,7 @@ resource "aws_efs_mount_target" "home_mount" {
 }
 
 resource "aws_security_group" "efs_mt_sg" {
-  name_prefix = "efs_mt_sg"
+  name_prefix = "efs_mt_sg-${local.cluster_name}"
   description = "Allow NFSv4 traffic"
   vpc_id      = module.vpc.vpc_id
 
