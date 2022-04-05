@@ -23,10 +23,15 @@
 ### Clone Repo
 
    ```bash
-   $ git clone 
+   $ git clone https://github.com/ubc/aws-eks-terraform.git
+   $ cd aws-eks-terraform
    ```
 
-### Setup Client
+### (Optional) Setup Client
+
+   ```bash
+   $ sudo bash ./setup.sh
+   ```
 
 ### Login via Saml2AWS or AWS CLI Keys
 
