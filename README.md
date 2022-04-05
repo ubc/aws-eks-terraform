@@ -16,7 +16,7 @@
 
 6. terraform (https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
-7. a client system with internet access. 
+7. A client system with internet access. 
 
 ## Deployment 
 
