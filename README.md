@@ -39,13 +39,25 @@
 
 ### Deploy Cluster
 
-  Deploy the EKS Cluster with terraform.
+  Deploy the EKS Cluster with terraform. If anything goes wrong with the deployment, you can cleanup by following the "Destroy Cluster" step.
 
    ```bash
    $ saml2aws login  # (Comment out for non Saml2AWS deployment) 
    $ terraform init --upgrade
    $ terraform apply
    ```
+
+### (Optional) Get Kube Config File
+
+   This will be automatically run during the deployment. However if something goes wrong this command may be usefull. Please update the "--profile" option to match your profile name. 
+   
+   ```bash
+   $ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --profile urn:amazon:webservices && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config
+   ```   
+   
+### Check Deployment
+
+
 
 ### (Optional) Install Helm RBAC
 
@@ -105,13 +117,3 @@ ip-10-1-2-85.us-west-2.compute.internal    Ready    <none>   8m48s   v1.13.7-eks
 ip-10-1-3-122.us-west-2.compute.internal   Ready    <none>   8m30s   v1.13.7-eks-c57ff8
 ```
 
-If you don't see any worker nodes, check the AWS IAM role configuration.
-
-## Helm
-We will be using RBAC (see the [helm RBAC
-documentation](https://helm.sh/docs/using_helm/#role-based-access-control), so
-we need to configure a role for tiller and initialize tiller.
-```
-$ kubectl create -f docs/rbac-config.yaml
-$ helm init --service-account tiller --history-max 200
-```
