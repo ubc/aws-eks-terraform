@@ -20,9 +20,13 @@
 
 ## Deployment 
 
-### Setup Client
-
 ### Clone Repo
+
+   ```bash
+   $ git clone 
+   ```
+
+### Setup Client
 
 ### Login via Saml2AWS or AWS CLI Keys
 
