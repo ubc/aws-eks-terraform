@@ -7,12 +7,25 @@ variable "profile" {
   default     = "urn:amazon:webservices"
 }
 
+variable "vpc_cidr" {
+  description = "AWS VPC CIDR"
+  default = "10.1.0.0/16"
+}
+
 variable "vpc_private_subnets" {
+  description = "Private Networks used by EKS Cluster"
   type    = list
-  default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
+  default = ["10.1.1.0/24", "10.1.2.0/24"]
+}
+
+variable "vpc_public_subnets" {
+  description = "Public Networks used by EKS Cluster"
+  type    = list
+  default = ["10.1.101.0/24", "10.1.102.0/24"]
 }
 
 variable "eks_instance_types" {
+  description = "List of AWS Node types available to EKS Cluster"
   type    = list
   default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
 }
