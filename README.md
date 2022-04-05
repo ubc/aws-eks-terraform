@@ -51,7 +51,7 @@
 
    ```bash
    $ saml2aws login  # (Comment out for non Saml2AWS deployment) 
-   $ terraform init --upgrade
+   $ terraform init -upgrade
    $ terraform apply
    ```
 
