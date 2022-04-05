@@ -7,7 +7,17 @@ variable "profile" {
   default     = "urn:amazon:webservices"
 }
 
-variable "eks_node_type" {
+variable "vpc_private_subnets" {
+  type    = list
+  default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
+}
+
+variable "eks_instance_types" {
+  type    = list
+  default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
+}
+
+variable "eks_instance_type" {
   description = "AWS Node type for user pod nodes"
   default     = "m5.xlarge"
 }
