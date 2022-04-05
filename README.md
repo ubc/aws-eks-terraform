@@ -60,7 +60,7 @@
    This will be automatically run during the deployment. However if something goes wrong this command may be usefull. Please update the "--profile" option to match your profile name. 
    
    ```bash
-   $ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --profile urn:amazon:webservices && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config
+   $ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config
    ```   
    
 ### Check Deployment
