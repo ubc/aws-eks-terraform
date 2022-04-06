@@ -115,4 +115,5 @@
 
 ## References
 
-  - 
+  - https://github.com/ubc/k8s-syzygy-eks
+  - https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/irsa_autoscale_refresh
