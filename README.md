@@ -56,8 +56,8 @@
 * cluster_base_name   (The Base Name used for EKS Cluster Deployment)
 * tag_project_name    (A Project Name that is Tagged onto the EKS Cluster Deployment)
      
-   **Notes:**
-   Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
+ **Notes:**
+ Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
 
 ### Deploy Cluster
 
