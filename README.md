@@ -37,7 +37,7 @@
 
 ### (Optional) List AWS Profiles
 
-   Helps find the profile name required in the next step. If you have more than one profile, be sure to ensure the correct one is chosen in the next step.
+   Helps find the profile name required in the next step. If you have more than one profile, ensure the correct one is chosen in the next step.
 
    ```bash
    $ cat ~/.aws/credentials | grep -o '\[[^]]*\]'
