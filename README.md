@@ -48,12 +48,12 @@
    Open the variables.tf file and edit the apropriate variable values to meet your requirements.
    
    The most important variables to be updated are:
-     - region              (AWS Region for EKS Cluster)
-     - profile             (AWS Profile Name to be used to deploy the EKS Cluster)
-     - eks_instance_types  (A List of Instance Types available to the Node Groups)
-     - eks_instance_type   (The Default Node Group Instance Type from eks_instance_types list)
-     - cluster_base_name   (The Base Name used for EKS Cluster Deployment)
-     - tag_project_name    (A Project Name that is Tagged onto the EKS Cluster Deployment)
+     * region              (AWS Region for EKS Cluster)
+     * profile             (AWS Profile Name to be used to deploy the EKS Cluster)
+     * eks_instance_types  (A List of Instance Types available to the Node Groups)
+     * eks_instance_type   (The Default Node Group Instance Type from eks_instance_types list)
+     * cluster_base_name   (The Base Name used for EKS Cluster Deployment)
+     * tag_project_name    (A Project Name that is Tagged onto the EKS Cluster Deployment)
      
    **Notes:**
    Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
