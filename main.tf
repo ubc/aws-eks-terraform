@@ -100,7 +100,7 @@ resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "/usr/bin/aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_id) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
+    command = "aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_id) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
 
