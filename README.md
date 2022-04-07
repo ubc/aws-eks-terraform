@@ -1,4 +1,5 @@
-# UBC (LTHub) Terraform EKS Cluster Deployment
+# (LTHub) Terraform EKS Cluster Deployment
+
 
 ## Description
 
@@ -61,26 +62,31 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
    
    **The most important variables to be updated are:**
    
-* region              (AWS Region for EKS Cluster)
-* profile             (AWS Profile Name to be used to deploy the EKS Cluster)
-* eks_instance_types  (A List of Instance Types available to the Node Groups)
-* eks_instance_type   (The Default Node Group Instance Type from eks_instance_types list)
-* cluster_base_name   (The Base Name used for EKS Cluster Deployment)
-* tag_project_name    (A Project Name that is Tagged onto the EKS Cluster Deployment)
+* **region**               - AWS Region for EKS Cluster.
+* **profile**              - AWS Profile Name to be used to deploy the EKS Cluster.
+* **eks_instance_types**   - A List of Instance Types available to the Node Groups.
+* **eks_instance_type**    - The Default Node Group Instance Type from eks_instance_types list.
+* **cluster_base_name**    - The Base Name used for EKS Cluster Deployment.
+* **tag_project_name**     - A Project Name that is Tagged onto the EKS Cluster Deployment.
      
  **Notes:**
  Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
-
+ 
+ 
 ### Deploy Cluster
 
-  Deploy the EKS Cluster with terraform. If anything goes wrong with the deployment, you can cleanup by following the "Destroy Cluster" step.
+  Deploy the EKS Cluster with terraform. 
 
    ```bash
    $ saml2aws login  # (Comment out for non Saml2AWS deployment) 
    $ terraform init -upgrade
    $ terraform apply
    ```
-
+   
+ **Notes:**
+ Generally if anything goes wrong during deployment its from misconigued variables. You can usually fix this by updating the variables.tf file with the correct infomation and rerunning "terraform apply". If anything goes wrong with the deployment that you cant solve by updaing the variables, you can cleanup by following the **Destroy Cluster** step.
+ 
+ 
 ### (Optional) Get Kube Config File
 
    This will be automatically run during the deployment. However if something goes wrong this command may be usefull. 
@@ -102,8 +108,9 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
    ```
    
    ```bash
-   $ kubectl get pods -n kube-system
+   $ kubectl get pods -n kube-system  # This should list a Pod with the text "autoscale" in the name.
    ```
+
 
 ### (Optional) Install Helm RBAC
 
@@ -113,6 +120,7 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
    $ kubectl create -f rbac-config.yaml --profile urn:amazon:webservices
    $ helm init --service-account tiller --history-max 200
    ```
+
 
 ### (Optional) Destroy Cluster
 
