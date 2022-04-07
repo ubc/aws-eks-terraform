@@ -125,7 +125,13 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
 ## Support
 
+  Unfortunatly no Support will be provided for this project unless requested by UBC Staff or Faculty. This code is to be used as is. Use at your own risk!
+
+  That being said, feel free to contact Rahim Khoja rahim.khoja@ubc.ca, in the offchance he feels like providing additional support.
+
 ## References
+
+  Credit should also go to [PIMS](https://www.pims.math.ca/) and [Ian A.](https://github.com/ianabc) for providing deployments based on AWS EKS.
 
   - https://github.com/ubc/k8s-syzygy-eks
   - https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/irsa_autoscale_refresh
