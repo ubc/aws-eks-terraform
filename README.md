@@ -10,15 +10,15 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
 1. LThub UBC AWS account access. (Or a regular AWS Admin account)
 
-2. saml2aws (https://github.com/Versent/saml2aws)
+2. [saml2aws](https://github.com/Versent/saml2aws)
 
-3. AWS Cli (https://github.com/aws/aws-cli)
+3. [AWS Cli](https://github.com/aws/aws-cli)
 
-4. kubectl (https://kubernetes.io/docs/tasks/tools/)
+4. [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
-5. helm (https://helm.sh/docs/intro/install/)
+5. [helm](https://helm.sh/docs/intro/install/)
 
-6. terraform (https://learn.hashicorp.com/tutorials/terraform/install-cli)
+6. [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
 7. A client system with internet access. 
 
