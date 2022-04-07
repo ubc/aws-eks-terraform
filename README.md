@@ -125,9 +125,9 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
 ## Support
 
-  Unfortunatly no Support will be provided for this project unless requested by UBC Staff or Faculty. This code is to be used as is. Use at your own risk!
+  Unfortunatly **No Support** will be provided for this repsoitory unless requested by UBC Staff or Faculty. This code is to be used **as is**. Use at your own risk!
 
-  That being said, feel free to contact Rahim Khoja rahim.khoja@ubc.ca, in the offchance he feels like providing additional support.
+  That being said, feel free to contact **[Rahim Khoja](rahim.khoja@ubc.ca)**, in the offchance he feels like providing additional support.
 
 ## References
 
