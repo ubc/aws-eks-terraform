@@ -2,6 +2,9 @@
 
 ## Description
 
+A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Autoscaling. 
+
+
 ## Requirements
 
 1. LThub UBC AWS account access. (Or a regular AWS Admin account)
@@ -18,19 +21,28 @@
 
 7. A client system with internet access. 
 
+
 ## Deployment 
-
-### Clone Repo
-
-   ```bash
-   $ git clone https://github.com/ubc/aws-eks-terraform.git
-   $ cd aws-eks-terraform
-   ```
 
 ### (Optional) Setup Client
 
+   In order to deploy the cluster you will need a client, with the software listed in the **Requirements** section installed, and an internet connection. 
+   
+   It may be wize to setup an EC2 VM as a Bastion/Jumpbox to be used as the client. If this is prefered, Deploy a Debian or Ubuntu VM and run the following commands on it.
+
    ```bash
+   $ git clone https://github.com/ubc/aws-eks-terraform.git my-first-eks-cluster
+   $ cd my-first-eks-cluster
    $ sudo bash ./setup.sh
+   ```
+
+### Clone Repo
+
+   These commands may not be needed if the commands in the **Setup Client** section were run.
+
+   ```bash
+   $ git clone https://github.com/ubc/aws-eks-terraform.git my-first-eks-cluster
+   $ cd my-first-eks-cluster
    ```
 
 ### Login via Saml2AWS or AWS CLI Keys
