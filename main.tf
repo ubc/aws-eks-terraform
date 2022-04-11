@@ -139,9 +139,21 @@ module "eks" {
   cluster_version = var.kube_version
   version = "18.17.0"
   cluster_name = local.cluster_name
-
   subnet_ids = module.vpc.private_subnets
-
+  vpc_id = module.vpc.vpc_id
+  enable_irsa = true
+      
+  node_security_group_additional_rules = {
+    ingress_allow_access_from_control_plane = {
+      type                          = "ingress"
+      protocol                      = "tcp"
+      from_port                     = 9443
+      to_port                       = 9443
+      source_cluster_security_group = true
+      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+    }
+  }
+      
   tags = merge(
     local.tags,
     {
@@ -149,10 +161,6 @@ module "eks" {
       GithubOrg = "terraform-aws-modules"
     }
   )
-
-  vpc_id = module.vpc.vpc_id
-
-  enable_irsa = true
 
   eks_managed_node_group_defaults = {
     disk_size = 72
