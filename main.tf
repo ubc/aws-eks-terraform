@@ -96,6 +96,21 @@ resource "aws_security_group" "all_worker_mgmt" {
   }
 }
 
+resource "aws_security_group" "alb_prod_sg" {
+  name_prefix = "alb-prod-sg-${local.cluster_name}"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
+}
+    
 resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
