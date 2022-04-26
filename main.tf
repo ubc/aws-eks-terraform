@@ -246,7 +246,8 @@ module "eks" {
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id,]
-      launch_template_name = ""
+      create_launch_template = false
+      launch_template_name   = ""
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
