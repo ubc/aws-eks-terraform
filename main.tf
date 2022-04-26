@@ -234,7 +234,7 @@ module "eks" {
   )
 
   eks_managed_node_group_defaults = {
-    disk_size = 128
+    disk_size = var.eks_node_disk_size
     instance_types = var.eks_instance_types
     instance_type = var.eks_instance_type
   }
