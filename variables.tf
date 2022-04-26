@@ -12,6 +12,11 @@ variable "vpc_cidr" {
   default = "10.1.0.0/16"
 }
 
+variable "eks_node_disk_size" {
+  description = "AWS EKS Node disk size in GB"
+  default = "128"
+}
+
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
