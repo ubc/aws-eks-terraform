@@ -79,6 +79,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
   }
 }
 
+    
 resource "aws_security_group" "all_worker_mgmt" {
   name_prefix = "all-worker-mgmt-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -95,7 +96,54 @@ resource "aws_security_group" "all_worker_mgmt" {
     ]
   }
 }
+    
+resource "tls_private_key" "ssh" {
+  algorithm = "RSA"
+}
 
+resource "aws_key_pair" "ssh" {
+  key_name_prefix = local.cluster_name
+  public_key      = tls_private_key.ssh.public_key_openssh
+
+  tags = merge(
+    local.tags,
+    {
+      GithubRepo = "terraform-aws-eks"
+      GithubOrg = "terraform-aws-modules"
+    }
+  )
+}
+
+resource "aws_security_group" "remote_access" {
+  name_prefix = "remote-access-${local.cluster_name}"
+  description = "Allow remote SSH access"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "SSH access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/8"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+   tags = merge(
+    local.tags,
+    {
+      GithubRepo = "terraform-aws-eks"
+      GithubOrg = "terraform-aws-modules"
+    }
+  )   
+}
+    
 resource "aws_security_group" "alb_prod_sg" {
   name_prefix = "alb-prod-sg-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -109,6 +157,14 @@ resource "aws_security_group" "alb_prod_sg" {
       "0.0.0.0/0"
     ]
   }
+
+  tags = merge(
+    local.tags,
+    {
+      GithubRepo = "terraform-aws-eks"
+      GithubOrg = "terraform-aws-modules"
+    }
+  )
 }
     
 resource "null_resource" "kube_config_create" {
@@ -189,8 +245,12 @@ module "eks" {
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id,]
       launch_template_name = ""
+      remote_access = {
+        ec2_ssh_key               = aws_key_pair.ssh.key_name
+        source_security_group_ids = [aws_security_group.remote_access.id]
+      }
       tags = merge(
         local.tags,
         {
