@@ -105,6 +105,11 @@ resource "aws_key_pair" "ssh" {
   key_name_prefix = local.cluster_name
   public_key      = tls_private_key.ssh.public_key_openssh
 
+  provisioner "local-exec" { # Create a "myKey.pem" to your computer!!
+    command = "echo '${tls_private_key.ssh.private_key_pem}' > ./${local.cluster_name}.pem"
+  }
+    
+    
   tags = merge(
     local.tags,
     {
