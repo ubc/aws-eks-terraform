@@ -52,12 +52,12 @@ variable "ug_min_size" {
 
 variable "ug_max_size" {
   description = "Maximum size for User node"
-  default     = "4"
+  default     = "100"
 }
 
 variable "ug_desired_cap" {
   description = "Desired capacity for User node"
-  default     = "0"
+  default     = "2"
 }
 
 variable "wg_min_size" {
@@ -67,7 +67,7 @@ variable "wg_min_size" {
 
 variable "wg_max_size" {
   description = "Maximum size for Worker node"
-  default     = "4"
+  default     = "10"
 }
 
 variable "wg_desired_cap" {
@@ -77,7 +77,7 @@ variable "wg_desired_cap" {
 
 variable "kube_version" {
   description = "Desired Kubernetes version for Cluster and Nodes."
-  default     = "1.21"
+  default     = "1.22"
 }
 
 variable "tag_project_name" {
