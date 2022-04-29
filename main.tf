@@ -254,7 +254,6 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
       launch_template_name   = ""
-      launch_template_description = "wg-node-${local.cluster_name}-1"
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
@@ -275,7 +274,6 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
       launch_template_name   = ""
-      launch_template_description = "ug-node-${local.cluster_name}-1"
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
