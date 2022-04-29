@@ -14,7 +14,7 @@ variable "vpc_cidr" {
 
 variable "eks_node_disk_size" {
   description = "AWS EKS Node disk size in GB"
-  default = "128"
+  default = "72"
 }
 
 variable "vpc_private_subnets" {
