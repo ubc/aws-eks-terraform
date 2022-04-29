@@ -242,6 +242,7 @@ module "eks" {
     disk_size      = var.eks_node_disk_size
     instance_types = var.eks_instance_types
     instance_type  = var.eks_instance_type
+    enable_monitoring = true
   }
 
   eks_managed_node_groups = [
@@ -252,7 +253,8 @@ module "eks" {
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
-      launch_template_name   = "wg-node-${local.cluster_name}-1"
+      launch_template_name   = ""
+      launch_template_description = "wg-node-${local.cluster_name}-1"
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
@@ -272,7 +274,8 @@ module "eks" {
       max_size                  = var.ug_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
-      launch_template_name   = "ug-node-${local.cluster_name}-1"
+      launch_template_name   = ""
+      launch_template_description = "ug-node-${local.cluster_name}-1"
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
