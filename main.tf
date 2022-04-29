@@ -129,7 +129,11 @@ resource "aws_security_group" "remote_access" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/8"]
+    cidr_blocks = [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16"
+    ]
   }
 
   egress {
@@ -242,7 +246,6 @@ module "eks" {
     disk_size      = var.eks_node_disk_size
     instance_types = var.eks_instance_types
     instance_type  = var.eks_instance_type
-    launch_template_use_name_prefix
   }
 
   eks_managed_node_groups = [
@@ -251,7 +254,7 @@ module "eks" {
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
       launch_template_name   = ""
       remote_access = {
@@ -271,7 +274,7 @@ module "eks" {
       desired_capacity          = var.ug_desired_cap
       min_size                  = var.ug_min_size
       max_size                  = var.ug_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
       launch_template_name   = ""
       remote_access = {
