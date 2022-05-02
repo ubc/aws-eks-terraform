@@ -3,7 +3,7 @@
 
 ## Description
 
-A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Autoscaling. 
+A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Autoscaling.
 
 
 ## Requirements
@@ -20,15 +20,15 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
 6. [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 
-7. A client system with internet access. 
+7. A client system with internet access.
 
 
-## Deployment 
+## Deployment
 
 ### (Optional) Setup Client
 
-   In order to deploy the cluster you will need a client, with the software listed in the **Requirements** section installed, and an internet connection. 
-   
+   In order to deploy the cluster you will need a client, with the software listed in the **Requirements** section installed, and an internet connection.
+
    It may be wize to setup an EC2 VM as a Bastion/Jumpbox to be used as the client. If this is prefered, Deploy a Debian or Ubuntu VM and run the following commands on it.
 
    ```bash
@@ -59,42 +59,42 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 ### Update Variables File
 
    Open the **"variables.tf"** file and edit the apropriate variable values to meet your requirements.
-   
+
    **The most important variables to be updated are:**
-   
+
 * **region**               - AWS Region for EKS Cluster.
 * **profile**              - AWS Profile Name to be used to deploy the EKS Cluster.
 * **eks_instance_types**   - A List of Instance Types available to the Node Groups.
 * **eks_instance_type**    - The Default Node Group Instance Type from eks_instance_types list.
 * **cluster_base_name**    - The Base Name used for EKS Cluster Deployment.
 * **tag_project_name**     - A Project Name that is Tagged onto the EKS Cluster Deployment.
-     
+
  **Notes:**
  Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
- 
- 
+
+
 ### Deploy Cluster
 
-  Deploy the EKS Cluster with terraform. 
+  Deploy the EKS Cluster with terraform.
 
    ```bash
-   $ saml2aws login  # (Comment out for non Saml2AWS deployment) 
+   $ saml2aws login  # (Comment out for non Saml2AWS deployment)
    $ terraform init -upgrade
    $ terraform apply
    ```
-   
+
  **Notes:**
  Generally if anything goes wrong during deployment its from misconigued variables. You can usually fix this by updating the variables.tf file with the correct infomation and rerunning "terraform apply". If anything goes wrong with the deployment that you cant solve by updaing the variables, you can cleanup by following the **Destroy Cluster** step.
- 
- 
+
+
 ### (Optional) Get Kube Config File
 
-   This will be automatically run during the deployment. However if something goes wrong this command may be usefull. 
-   
+   This will be automatically run during the deployment. However if something goes wrong this command may be usefull.
+
    ```bash
    $ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_id) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config
-   ```   
-   
+   ```
+
 ### Check Deployment
 
    If these commands complete without errors, the deployment is complete!
@@ -102,11 +102,11 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
    ```bash
    $ kubectl version
    ```
-   
+
    ```bash
    $ kubectl get nodes
    ```
-   
+
    ```bash
    $ kubectl get pods -n kube-system  # This should list a Pod with the text "autoscale" in the name.
    ```
@@ -115,9 +115,9 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 ### (Optional) Install Helm RBAC
 
  Some HELM Deployments require Roles to be created. (see the [helm RBAC documentation](https://helm.sh/docs/using_helm/#role-based-access-control) )
- 
+
    ```bash
-   $ kubectl create -f rbac-config.yaml --profile urn:amazon:webservices
+   $ kubectl create -f rbac-config.yaml --profile $(terraform output -raw profile)
    $ helm init --service-account tiller --history-max 200
    ```
 
@@ -127,7 +127,7 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
   Destroy the EKS Cluster with terraform.
 
    ```bash
-   $ saml2aws login  # (Comment out for non Saml2AWS deployment) 
+   $ saml2aws login  # (Comment out for non Saml2AWS deployment)
    $ terraform destroy
    ```
 
