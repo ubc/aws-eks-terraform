@@ -15,9 +15,6 @@ provider "local" {
 provider "null" {
 }
 
-provider "template" {
-}
-
 data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {}
@@ -79,7 +76,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
   }
 }
 
-    
+
 resource "aws_security_group" "all_worker_mgmt" {
   name_prefix = "all-worker-mgmt-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -96,7 +93,7 @@ resource "aws_security_group" "all_worker_mgmt" {
     ]
   }
 }
-    
+
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
 }
@@ -108,8 +105,8 @@ resource "aws_key_pair" "ssh" {
   provisioner "local-exec" { # Create a "myKey.pem" to your computer!!
     command = "echo '${tls_private_key.ssh.private_key_pem}' > ./${local.cluster_name}.pem"
   }
-    
-    
+
+
   tags = merge(
     local.tags,
     {
@@ -146,9 +143,9 @@ resource "aws_security_group" "remote_access" {
       GithubRepo = "terraform-aws-eks"
       GithubOrg = "terraform-aws-modules"
     }
-  )   
+  )
 }
-    
+
 resource "aws_security_group" "alb_prod_sg" {
   name_prefix = "alb-prod-sg-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -171,7 +168,7 @@ resource "aws_security_group" "alb_prod_sg" {
     }
   )
 }
-    
+
 resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
@@ -218,7 +215,7 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
   vpc_id = module.vpc.vpc_id
   enable_irsa = true
-      
+
   node_security_group_additional_rules = {
     ingress_allow_access_from_control_plane = {
       type                          = "ingress"
@@ -229,7 +226,7 @@ module "eks" {
       description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
     }
   }
-      
+
   tags = merge(
     local.tags,
     {
