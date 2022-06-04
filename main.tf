@@ -250,7 +250,8 @@ module "eks" {
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
-      launch_template_name   = ""
+      launch_template_name    = aws_launch_template.external.name
+      launch_template_version = aws_launch_template.external.default_version
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
@@ -270,7 +271,8 @@ module "eks" {
       max_size                  = var.ug_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = false
-      launch_template_name   = ""
+      launch_template_name    = aws_launch_template.external.name
+      launch_template_version = aws_launch_template.external.default_version
       remote_access = {
         ec2_ssh_key               = aws_key_pair.ssh.key_name
         source_security_group_ids = [aws_security_group.remote_access.id]
@@ -318,3 +320,61 @@ resource "aws_security_group" "efs_mt_sg" {
     ]
   }
 }
+    
+resource "eks_launch_template" "external" {
+  name_prefix            = "launch-temp-${local.cluster_name}-"
+  description            = "EKS managed node group external launch template"
+  update_default_version = true
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size           = var.eks_node_disk_size
+      volume_type           = "gp2"
+      delete_on_termination = true
+    }
+  }
+
+  monitoring {
+    enabled = true
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+        "project" = "${local.tags.project}"
+    }
+  }
+
+  tag_specifications {
+    resource_type = "volume"
+
+    tags = {
+        "project" = "${local.tags.project}"
+    }
+  }
+
+  tag_specifications {
+    resource_type = "network-interface"
+
+    tags = {
+        "project" = "${local.tags.project}"
+    }
+  }
+
+  tags = merge(
+      local.tags,
+      {
+          "k8s.io/cluster-autoscaler/enabled"               = "true"
+          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
+      }
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+    
