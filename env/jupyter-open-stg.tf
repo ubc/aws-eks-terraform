@@ -57,7 +57,7 @@ variable "ug_min_size" {
 
 variable "ug_max_size" {
   description = "Maximum size for User node"
-  default     = "100"
+  default     = "6"
 }
 
 variable "ug_desired_cap" {
@@ -72,7 +72,7 @@ variable "wg_min_size" {
 
 variable "wg_max_size" {
   description = "Maximum size for Worker node"
-  default     = "10"
+  default     = "6"
 }
 
 variable "wg_desired_cap" {
