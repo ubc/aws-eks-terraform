@@ -72,7 +72,7 @@ variable "wg_min_size" {
 
 variable "wg_max_size" {
   description = "Maximum size for Worker node"
-  default     = "10"
+  default     = "100"
 }
 
 variable "wg_desired_cap" {
