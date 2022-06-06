@@ -7,21 +7,16 @@ output "profile" {
   description = "AWS profile."
   value       = var.profile
 }
-  
+
 output "efs_id" {
   description = "AWS EFS FileSystemID"
   value       = aws_efs_file_system.home.id
 }
 
-output "eks_cluster_ssh_private_key_pem" {
-  value = tls_private_key.ssh.private_key_pem
-  sensitive = true
-}
-
 ################################################################################
 # VPC
 ################################################################################
-  
+
 output "vpc_id" {
   description = "VPC"
   value       = module.vpc.vpc_id
@@ -32,7 +27,7 @@ output "subnet_id" {
   value       = module.vpc.public_subnets[0]
 }
 
-  
+
 ################################################################################
 # Cluster
 ################################################################################
