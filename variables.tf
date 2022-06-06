@@ -45,6 +45,11 @@ variable "cluster_base_name" {
   default     = "UBC-EKS"
 }
 
+variable "cluster_name_random" {
+  description = "Enable/Disable Random String in Cluster Name (1/0)"
+  default     = "0"
+}
+
 variable "ug_min_size" {
   description = "Minimum size for User node"
   default     = "0"
@@ -87,5 +92,15 @@ variable "tag_project_name" {
 
 variable "tag_enviroment_name" {
   description = "Enviroment Name Tag"
-  default     = "UBC-Dev"
+  default     = "Production/Staging/Development"
+}
+
+variable "tag_department" {
+  description = "Department Tag"
+  default     = "Department Name"
+}
+
+variable "tag_dept_service" {
+  description = "Service Tag"
+  default     = "Service Name"
 }

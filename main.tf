@@ -15,6 +15,10 @@ provider "local" {
 provider "null" {
 }
 
+provider "template" {
+}
+
+
 data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {}
@@ -47,12 +51,15 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "${var.cluster_base_name}-${random_string.suffix.result}"
+  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}" : "${var.cluster_base_name}-${random_string.suffix.result}"}"
+  #cluster_name = "${var.cluster_base_name}-${random_string.suffix.result}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
-    Environment = "${var.tag_enviroment_name}"
-    project     = "${var.tag_project_name}"
+    Environment  = "${var.tag_enviroment_name}"
+    project      = "${var.tag_project_name}"
+    department   = "${var.tag_department}"
+    dept_service = "${var.tag_dept_service}"
   }
 }
 
@@ -92,28 +99,6 @@ resource "aws_security_group" "all_worker_mgmt" {
       "192.168.0.0/16"
     ]
   }
-}
-
-resource "tls_private_key" "ssh" {
-  algorithm = "RSA"
-}
-
-resource "aws_key_pair" "ssh" {
-  key_name_prefix = local.cluster_name
-  public_key      = tls_private_key.ssh.public_key_openssh
-
-  provisioner "local-exec" { # Create a "myKey.pem" to your computer!!
-    command = "echo '${tls_private_key.ssh.private_key_pem}' > ./${local.cluster_name}.pem"
-  }
-
-
-  tags = merge(
-    local.tags,
-    {
-      GithubRepo = "terraform-aws-eks"
-      GithubOrg = "terraform-aws-modules"
-    }
-  )
 }
 
 resource "aws_security_group" "remote_access" {
@@ -240,6 +225,21 @@ module "eks" {
     instance_types = var.eks_instance_types
     instance_type  = var.eks_instance_type
     enable_monitoring = true
+
+    block_device_mappings = {
+      xvda = {
+        device_name = "/dev/xvda"
+        ebs         = {
+          volume_size           = var.eks_node_disk_size
+          volume_type           = "gp3"
+          iops                  = 3000
+          throughput            = 150
+          encrypted             = true
+          delete_on_termination = true
+        }
+      }
+    }
+
   }
 
   eks_managed_node_groups = [
@@ -249,13 +249,8 @@ module "eks" {
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
-      create_launch_template = false
-      launch_template_name    = aws_launch_template.external.name
-      launch_template_version = aws_launch_template.external.default_version
-      remote_access = {
-        ec2_ssh_key               = aws_key_pair.ssh.key_name
-        source_security_group_ids = [aws_security_group.remote_access.id]
-      }
+      create_launch_template = true
+      launch_template_name = ""
       tags = merge(
         local.tags,
         {
@@ -272,19 +267,6 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
       create_launch_template = true
       launch_template_name = ""
-      block_device_mappings {
-        device_name = "/dev/xvda"
-
-        ebs {
-          volume_size           = var.eks_node_disk_size
-          volume_type           = "gp2"
-          delete_on_termination = true
-        }
-      }
-      remote_access = {
-        ec2_ssh_key               = aws_key_pair.ssh.key_name
-        source_security_group_ids = [aws_security_group.remote_access.id]
-      }
       tags = merge(
         local.tags,
         {
@@ -328,61 +310,3 @@ resource "aws_security_group" "efs_mt_sg" {
     ]
   }
 }
-    
-resource "eks_launch_template" "external" {
-  name_prefix            = "launch-temp-${local.cluster_name}-"
-  description            = "EKS managed node group external launch template"
-  update_default_version = true
-
-  block_device_mappings {
-    device_name = "/dev/xvda"
-
-    ebs {
-      volume_size           = var.eks_node_disk_size
-      volume_type           = "gp2"
-      delete_on_termination = true
-    }
-  }
-
-  monitoring {
-    enabled = true
-  }
-
-  tag_specifications {
-    resource_type = "instance"
-
-    tags = {
-        "project" = "${local.tags.project}"
-    }
-  }
-
-  tag_specifications {
-    resource_type = "volume"
-
-    tags = {
-        "project" = "${local.tags.project}"
-    }
-  }
-
-  tag_specifications {
-    resource_type = "network-interface"
-
-    tags = {
-        "project" = "${local.tags.project}"
-    }
-  }
-
-  tags = merge(
-      local.tags,
-      {
-          "k8s.io/cluster-autoscaler/enabled"               = "true"
-          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
-      }
-  )
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-    

@@ -76,3 +76,27 @@ module "cluster_autoscaler_irsa" {
 
   tags = local.tags
 }
+
+resource "helm_release" "kubecost" {
+  name = "kubecost"
+  repository = "https://kubecost.github.io/cost-analyzer/"
+  chart      = "cost-analyzer"
+  namespace  = "default"
+
+  depends_on = [
+    module.eks.cluster_id,
+    null_resource.apply,
+  ]
+}
+
+resource "helm_release" "metrics-server" {
+  name = "metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  namespace  = "default"
+
+  depends_on = [
+    module.eks.cluster_id,
+    null_resource.apply,
+  ]
+}
