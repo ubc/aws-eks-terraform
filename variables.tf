@@ -47,7 +47,7 @@ variable "cluster_base_name" {
 
 variable "cluster_name_random" {
   description = "Enable/Disable Random String in Cluster Name (1/0)"
-  default     = "0"
+  default     = "1"
 }
 
 variable "ug_min_size" {
