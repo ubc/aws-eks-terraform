@@ -18,7 +18,6 @@ provider "null" {
 provider "template" {
 }
 
-
 data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {}
@@ -69,7 +68,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_security_group" "worker_group_mgmt_one" {
-  name_prefix = "wg-manager-${local.cluster_name}"
+  name_prefix = "sg-wgm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -85,7 +84,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 
 
 resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix = "all-worker-mgmt-${local.cluster_name}"
+  name_prefix = "sg-awm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -102,7 +101,7 @@ resource "aws_security_group" "all_worker_mgmt" {
 }
 
 resource "aws_security_group" "remote_access" {
-  name_prefix = "remote-access-${local.cluster_name}"
+  name_prefix = "ra-${local.cluster_name}"
   description = "Allow remote SSH access"
   vpc_id      = module.vpc.vpc_id
 
@@ -132,7 +131,7 @@ resource "aws_security_group" "remote_access" {
 }
 
 resource "aws_security_group" "alb_prod_sg" {
-  name_prefix = "alb-prod-sg-${local.cluster_name}"
+  name_prefix = "alb-sg-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -165,7 +164,7 @@ resource "null_resource" "kube_config_create" {
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
 
-  name                 = "eks-vpc-${local.cluster_name}"
+  name                 = "vpc-${local.cluster_name}"
   cidr                 = var.vpc_cidr
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = var.vpc_private_subnets
@@ -244,7 +243,7 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "wg-${local.cluster_name}-1"
+      name                      = "wg-${local.cluster_name}"
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
@@ -260,7 +259,7 @@ module "eks" {
       )
     },
     {
-      name                      = "ug-${local.cluster_name}-1"
+      name                      = "ug-${local.cluster_name}"
       desired_capacity          = var.ug_desired_cap
       min_size                  = var.ug_min_size
       max_size                  = var.ug_max_size
@@ -292,7 +291,7 @@ resource "aws_efs_mount_target" "home_mount" {
 }
 
 resource "aws_security_group" "efs_mt_sg" {
-  name_prefix = "efs_mt_sg-${local.cluster_name}"
+  name_prefix = "sg-efs-${local.cluster_name}"
   description = "Allow NFSv4 traffic"
   vpc_id      = module.vpc.vpc_id
 
