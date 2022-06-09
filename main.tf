@@ -231,8 +231,8 @@ module "eks" {
         ebs         = {
           volume_size           = var.eks_node_disk_size
           volume_type           = "gp3"
-          iops                  = 3000
-          throughput            = 100
+          iops                  = 3500
+          throughput            = 150
           encrypted             = true
           delete_on_termination = true
         }
