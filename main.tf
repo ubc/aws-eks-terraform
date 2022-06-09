@@ -257,23 +257,6 @@ module "eks" {
           "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
         }
       )
-    },
-    {
-      name                      = "ug-${local.cluster_name}"
-      desired_capacity          = var.ug_desired_cap
-      min_size                  = var.ug_min_size
-      max_size                  = var.ug_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
-      create_launch_template = true
-      launch_template_name = ""
-      tags = merge(
-        local.tags,
-        {
-          "k8s.io/cluster-autoscaler/enabled"               = "true"
-          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
-        }
-      )
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     }
   ]
 
