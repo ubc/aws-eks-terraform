@@ -68,7 +68,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_security_group" "worker_group_mgmt_one" {
-  name_prefix = "sg-wgm-${local.cluster_name}"
+  name_prefix = "aws-sg-wgm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -84,7 +84,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 
 
 resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix = "sg-awm-${local.cluster_name}"
+  name_prefix = "aws-sg-awm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -291,7 +291,7 @@ resource "aws_efs_mount_target" "home_mount" {
 }
 
 resource "aws_security_group" "efs_mt_sg" {
-  name_prefix = "sg-efs-${local.cluster_name}"
+  name_prefix = "aws-sg-efs-${local.cluster_name}"
   description = "Allow NFSv4 traffic"
   vpc_id      = module.vpc.vpc_id
 
