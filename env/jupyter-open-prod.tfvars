@@ -1,8 +1,8 @@
 region = "us-west-2"
 profile = "urn:amazon:webservices"
-eks_node_disk_size = "72"
-eks_instance_types = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
-eks_instance_type = "m5.xlarge"
+eks_node_disk_size = "64"
+eks_instance_types = ["c6g.4xlarge"]
+eks_instance_type = "c6g.4xlarge"
 cluster_base_name = "JUPYTER-O-PROD"
 cluster_name_random = "0"
 ug_max_size = "100"
