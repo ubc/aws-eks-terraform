@@ -1,4 +1,10 @@
 terraform {
+  backend "s3" {
+    bucket = "jupyterhub-terraform-tfstate"
+    key    = "jupyterhub-open-stg/terraform.tfstate"
+    region = "ca-central-1"
+  }
+
 }
 
 provider "aws" {

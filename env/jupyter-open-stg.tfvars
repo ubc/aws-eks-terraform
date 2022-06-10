@@ -1,9 +1,9 @@
-region = "us-west-2"
-profile = "urn:amazon:webservices"
-eks_node_disk_size = "72"
-eks_instance_types = ["t4g.xlarge"]
-eks_instance_type = "t4g.xlarge"
-cluster_base_name = "JUPYTER-O-STG"
+region = "ca-central-1"
+profile = "saml"
+eks_node_disk_size = "64"
+eks_instance_types = ["m5a.xlarge"]
+eks_instance_type = "m5a.xlarge"
+cluster_base_name = "jopen-stg"
 cluster_name_random = "0"
 ug_max_size = "6"
 wg_max_size = "6"
