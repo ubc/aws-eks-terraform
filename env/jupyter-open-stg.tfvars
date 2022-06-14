@@ -1,5 +1,5 @@
 region = "ca-central-1"
-profile = "saml"
+profile = "urn:amazon:webservices"
 eks_node_disk_size = "64"
 eks_instance_types = ["m5a.xlarge"]
 eks_instance_type = "m5a.xlarge"
