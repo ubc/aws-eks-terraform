@@ -338,7 +338,6 @@ resource "aws_efs_mount_target" "home_mount" {
   file_system_id  = aws_efs_file_system.home.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
-  tags = local.tags
 }
 
 resource "aws_security_group" "efs_mt_sg" {
