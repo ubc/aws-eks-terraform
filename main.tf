@@ -1,12 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket = "jupyterhub-terraform-tfstate"
-    key    = "jupyterhub-open-stg/terraform.tfstate"
-    region = "ca-central-1"
-  }
-
-}
-
 provider "aws" {
     profile = var.profile
     region  = var.region
@@ -56,8 +47,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}" : "${var.cluster_base_name}-${random_string.suffix.result}"}"
-  #cluster_name = "${var.cluster_base_name}-${random_string.suffix.result}"
+  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}-${var.tag_enviroment_name}" : "${var.cluster_base_name}-${var.tag_enviroment_name}-${random_string.suffix.result}"}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -73,6 +63,25 @@ resource "random_string" "suffix" {
   special = false
 }
 
+resource "aws_db_instance" "rds" {
+  identifier = "rds-db-${local.cluster_name}"
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  db_name              = "jhubshib"
+  username             = "admin"
+  password             = "UBC-Shib-Backend"
+  parameter_group_name = "default.mysql5.7"
+  publicly_accessible = false
+  skip_final_snapshot = true
+  vpc_security_group_ids = [aws_security_group.rds_mysql.id]
+  db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
+  tags = local.tags
+}
+
+
 resource "aws_security_group" "worker_group_mgmt_one" {
   name_prefix = "aws-sg-wgm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -86,6 +95,8 @@ resource "aws_security_group" "worker_group_mgmt_one" {
       "10.0.0.0/8"
     ]
   }
+  tags = local.tags
+
 }
 
 
@@ -104,36 +115,7 @@ resource "aws_security_group" "all_worker_mgmt" {
       "192.168.0.0/16"
     ]
   }
-}
-
-resource "aws_security_group" "remote_access" {
-  name_prefix = "ra-${local.cluster_name}"
-  description = "Allow remote SSH access"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "SSH access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-   tags = merge(
-    local.tags,
-    {
-      GithubRepo = "terraform-aws-eks"
-      GithubOrg = "terraform-aws-modules"
-    }
-  )
+  tags = local.tags
 }
 
 resource "aws_security_group" "alb_prod_sg" {
@@ -154,6 +136,69 @@ resource "aws_security_group" "alb_prod_sg" {
     local.tags,
     {
       GithubRepo = "terraform-aws-eks"
+      GithubOrg = "terraform-aws-modules"
+    }
+  )
+}
+
+resource "aws_security_group" "rds_mysql" {
+  name_prefix = "rds-db-sg-${local.cluster_name}"
+  description = "Allow MySQL Ports"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "Allowing Connection for MySQL"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/8"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    local.tags,
+    {
+      GithubOrg = "terraform-aws-modules"
+    }
+  )
+}
+
+resource "aws_db_subnet_group" "rds_mysql" {
+  name_prefix = "rds-db-sng-${local.cluster_name}"
+  subnet_ids = module.vpc.public_subnets
+
+  tags = local.tags
+}
+
+resource "aws_security_group" "http" {
+  name_prefix = "http-sg-${local.cluster_name}"
+  description = "Allow HTTP Port"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "Allowing Connection for HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    local.tags,
+    {
       GithubOrg = "terraform-aws-modules"
     }
   )
@@ -205,7 +250,7 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
   vpc_id = module.vpc.vpc_id
   enable_irsa = true
-
+  create_cloudwatch_log_group = false
   node_security_group_additional_rules = {
     ingress_allow_access_from_control_plane = {
       type                          = "ingress"
@@ -214,6 +259,21 @@ module "eks" {
       to_port                       = 9443
       source_cluster_security_group = true
       description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+    }
+    egress_all = {
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+    ingress_self_all = {
+      protocol  = "-1"
+      from_port = 0
+      to_port   = 0
+      type      = "ingress"
+      self      = true
     }
   }
 
@@ -253,7 +313,7 @@ module "eks" {
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.remote_access.id]
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
       create_launch_template = true
       launch_template_name = ""
       tags = merge(
@@ -266,10 +326,11 @@ module "eks" {
     }
   ]
 
-  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
+  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
 }
 
 resource "aws_efs_file_system" "home" {
+    tags = local.tags
 }
 
 resource "aws_efs_mount_target" "home_mount" {
@@ -277,6 +338,7 @@ resource "aws_efs_mount_target" "home_mount" {
   file_system_id  = aws_efs_file_system.home.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
+  tags = local.tags
 }
 
 resource "aws_security_group" "efs_mt_sg" {
@@ -297,4 +359,6 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
+      
+  tags = local.tags    
 }
