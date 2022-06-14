@@ -315,6 +315,7 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
       create_launch_template = true
       launch_template_name = ""
+        
       tags = merge(
         local.tags,
         {
@@ -328,7 +329,6 @@ module "eks" {
 }
 
 resource "aws_efs_file_system" "home" {
-    tags = local.tags
 }
 
 resource "aws_efs_mount_target" "home_mount" {
@@ -356,5 +356,6 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
+      
   tags = local.tags    
 }
