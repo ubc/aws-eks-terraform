@@ -47,8 +47,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}" : "${var.cluster_base_name}-${random_string.suffix.result}"}"
-  #cluster_name = "${var.cluster_base_name}-${random_string.suffix.result}"
+  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}-${var.tag_enviroment_name}" : "${var.cluster_base_name}-${var.tag_enviroment_name}-${random_string.suffix.result}"}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -59,15 +58,13 @@ locals {
   }
 }
 
-
 resource "random_string" "suffix" {
   length = 8
   special = false
 }
 
-
 resource "aws_db_instance" "rds" {
-  identifier = "db-${local.cluster_name}-${var.tag_enviroment_name}"
+  identifier = "rds-db-${local.cluster_name}"
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"
@@ -154,7 +151,7 @@ resource "aws_security_group" "rds_mysql" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/8"]
   }
 
   egress {
@@ -167,21 +164,17 @@ resource "aws_security_group" "rds_mysql" {
   tags = merge(
     local.tags,
     {
-      GithubRepo = "terraform-aws-eks"
       GithubOrg = "terraform-aws-modules"
     }
   )
 }
-
 
 resource "aws_db_subnet_group" "rds_mysql" {
   name_prefix = "rds-db-sng-${local.cluster_name}"
   subnet_ids = module.vpc.public_subnets
 
   tags = local.tags
-
 }
-
 
 resource "aws_security_group" "http" {
   name_prefix = "http-sg-${local.cluster_name}"
@@ -206,12 +199,10 @@ resource "aws_security_group" "http" {
   tags = merge(
     local.tags,
     {
-      GithubRepo = "terraform-aws-eks"
       GithubOrg = "terraform-aws-modules"
     }
   )
 }
-
 
 resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
@@ -339,6 +330,7 @@ module "eks" {
 }
 
 resource "aws_efs_file_system" "home" {
+    tags = local.tags
 }
 
 resource "aws_efs_mount_target" "home_mount" {
@@ -346,6 +338,7 @@ resource "aws_efs_mount_target" "home_mount" {
   file_system_id  = aws_efs_file_system.home.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
+  tags = local.tags
 }
 
 resource "aws_security_group" "efs_mt_sg" {
@@ -366,4 +359,6 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
+      
+  tags = local.tags    
 }
