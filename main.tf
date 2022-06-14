@@ -304,7 +304,6 @@ module "eks" {
         }
       }
     }
-
   }
 
   eks_managed_node_groups = [
@@ -325,7 +324,6 @@ module "eks" {
       )
     }
   ]
-
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
 }
 
@@ -358,6 +356,5 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
-      
   tags = local.tags    
 }
