@@ -362,13 +362,16 @@ resource "aws_security_group" "efs_mt_sg" {
 }
 
 resource "aws_efs_file_system" "course" {
+  count = "${var.eks_efs_storage != "0" ? "1" : "0"}"
 }
 
 resource "aws_efs_mount_target" "course_mount" {
-  count           = length(module.vpc.private_subnets)
+  count           = count = "${var.eks_efs_storage != "0" ? "length(module.vpc.private_subnets)" : "0"}"
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_course_mt_sg.id]
+  encrypted = true
+  
 }
 
 resource "aws_security_group" "efs_course_mt_sg" {
