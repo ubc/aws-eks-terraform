@@ -22,16 +22,6 @@ variable "eks_rds_db" {
   default = "0"
 }
 
-variable "eks_efs_storage" {
-  description = "Create Extra EFS Storage"
-  default = "0"
-}
-
-variable "eks_efs_storage_size" {
-  description = "Extra EFS Storage Size in GB"
-  default = "100"
-}
-
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
@@ -63,21 +53,6 @@ variable "cluster_base_name" {
 variable "cluster_name_random" {
   description = "Enable/Disable Random String in Cluster Name (1/0)"
   default     = "1"
-}
-
-variable "ug_min_size" {
-  description = "Minimum size for User node"
-  default     = "0"
-}
-
-variable "ug_max_size" {
-  description = "Maximum size for User node"
-  default     = "100"
-}
-
-variable "ug_desired_cap" {
-  description = "Desired capacity for User node"
-  default     = "2"
 }
 
 variable "wg_min_size" {
