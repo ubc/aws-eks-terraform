@@ -66,11 +66,12 @@ mv ./kubectl /usr/local/bin/
 mv ./saml2aws /usr/local/bin/
 hash -r
 
-#cd "/tmp/${rname}"
-#chmod u+x ./kubectl-*
-#chown 1000:1000 ./kubectl-*
-#cp -r ./kubectl-* /usr/local/bin/
-
+cd "/tmp/${rname}"
+git clone https://github.com/ubc/aws-eks-terraform.git repo
+cd repo/client
+chmod u+x ./kubectl-ssh
+chown 1000:1000 ./kubectl-ssh
+cp -r ./kubectl-ssh /usr/local/bin/
 
 # Clean Up
 cd ~/
