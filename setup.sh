@@ -51,7 +51,8 @@ curl -fsSL https://baltocdn.com/helm/signing.asc | apt-key add -
 apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 apt-add-repository "deb https://baltocdn.com/helm/stable/debian/ all main"
 apt upgrade --yes
-apt install awscli terraform apt-transport-https helm --yes
+apt install awscli docker.io python3-pip terraform apt-transport-https helm --yes
+pip3 install --upgrade awscli
 
 # Binary Installs
 saws_ver=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1)
@@ -66,12 +67,11 @@ mv ./saml2aws /usr/local/bin/
 hash -r
 
 cd "/tmp/${rname}"
-git clone https://github.com/ubc/kubectl-plugins.git
-cd kubectl-plugins
-chmod u+x ./kubectl-*
-chown 1000:1000 ./kubectl-*
-cp -r ./kubectl-* /usr/local/bin/
-
+git clone https://github.com/ubc/aws-eks-terraform.git repo
+cd repo/client
+chmod u+x ./kubectl-ssh
+chown 1000:1000 ./kubectl-ssh
+cp -r ./kubectl-ssh /usr/local/bin/
 
 # Clean Up
 cd ~/
