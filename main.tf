@@ -362,7 +362,9 @@ resource "aws_security_group" "efs_mt_sg" {
 }
 
 resource "aws_efs_file_system" "course" {
+  name_prefix = "efs_course-${local.cluster_name}"
   encrypted = true
+  tags = local.tags    
 }
 
 resource "aws_efs_mount_target" "course_mount" {
