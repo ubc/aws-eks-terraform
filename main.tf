@@ -100,7 +100,6 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 
 }
 
-
 resource "aws_security_group" "all_worker_mgmt" {
   name_prefix = "aws-sg-awm-${local.cluster_name}"
   vpc_id      = module.vpc.vpc_id
@@ -133,6 +132,16 @@ resource "aws_security_group" "alb_prod_sg" {
     ]
   }
 
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
+      
   tags = merge(
     local.tags,
     {
@@ -177,33 +186,6 @@ resource "aws_db_subnet_group" "rds_mysql" {
   tags = local.tags
 }
 
-resource "aws_security_group" "http" {
-  name_prefix = "http-sg-${local.cluster_name}"
-  description = "Allow HTTP Port"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "Allowing Connection for HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(
-    local.tags,
-    {
-      GithubOrg = "terraform-aws-modules"
-    }
-  )
-}
 
 resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
@@ -313,7 +295,7 @@ module "eks" {
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.http.id, aws_security_group.rds_mysql.id, aws_security_group.efs_course_mt_sg.id]
+      additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
         
@@ -326,10 +308,11 @@ module "eks" {
       )
     }
   ]
-  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.http.id, aws_security_group.rds_mysql.id, aws_security_group.efs_course_mt_sg.id]
+  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
 }
 
 resource "aws_efs_file_system" "home" {
+  tags = local.tags
 }
 
 resource "aws_efs_mount_target" "home_mount" {
@@ -362,7 +345,6 @@ resource "aws_security_group" "efs_mt_sg" {
 }
 
 resource "aws_efs_file_system" "course" {
-  name_prefix = "efs_course-${local.cluster_name}"
   encrypted = true
   tags = local.tags    
 }
@@ -371,28 +353,6 @@ resource "aws_efs_mount_target" "course_mount" {
   count           = length(module.vpc.private_subnets)
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
-  security_groups = [aws_security_group.efs_course_mt_sg.id]
+  security_groups = [aws_security_group.efs_mt_sg.id]
   
-}
-
-resource "aws_security_group" "efs_course_mt_sg" {
-  name_prefix = "efs_course_sg-${local.cluster_name}"
-  description = "Allow NFSv4 traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  ingress {
-    from_port = 2049
-    to_port   = 2049
-    protocol  = "tcp"
-
-    cidr_blocks = [
-      "10.1.0.0/16"
-    ]
-  }
-      
-  tags = local.tags    
 }
