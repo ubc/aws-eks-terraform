@@ -12,3 +12,4 @@ tag_project_name = "jupyterhub"
 tag_enviroment_name = "stg"
 tag_department = "UBC LTHub"
 tag_dept_service = "UBC Jupyter Course"
+eks_efs_storage = 1
