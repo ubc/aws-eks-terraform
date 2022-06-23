@@ -313,7 +313,7 @@ module "eks" {
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
+      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id, aws_security_group.http.id, aws_security_group.rds_mysql.id, aws_security_group.efs_course_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
         
@@ -326,7 +326,7 @@ module "eks" {
       )
     }
   ]
-  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.http.id, aws_security_group.rds_mysql.id]
+  cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.http.id, aws_security_group.rds_mysql.id, aws_security_group.efs_course_mt_sg.id]
 }
 
 resource "aws_efs_file_system" "home" {
@@ -341,6 +341,39 @@ resource "aws_efs_mount_target" "home_mount" {
 
 resource "aws_security_group" "efs_mt_sg" {
   name_prefix = "aws-sg-efs-${local.cluster_name}"
+  description = "Allow NFSv4 traffic"
+  vpc_id      = module.vpc.vpc_id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  ingress {
+    from_port = 2049
+    to_port   = 2049
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "10.1.0.0/16"
+    ]
+  }
+      
+  tags = local.tags    
+}
+
+resource "aws_efs_file_system" "course" {
+}
+
+resource "aws_efs_mount_target" "course_mount" {
+  count           = length(module.vpc.private_subnets)
+  file_system_id  = aws_efs_file_system.course.id
+  subnet_id       = element(module.vpc.private_subnets, count.index)
+  security_groups = [aws_security_group.efs_course_mt_sg.id]
+}
+
+resource "aws_security_group" "efs_course_mt_sg" {
+  count = "${var.eks_rds_db != "0" ? "1" : "0"}"
+  name_prefix = "efs_course_sg-${local.cluster_name}"
   description = "Allow NFSv4 traffic"
   vpc_id      = module.vpc.vpc_id
 
