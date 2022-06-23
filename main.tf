@@ -366,6 +366,7 @@ resource "aws_efs_file_system" "course" {
 }
 
 resource "aws_efs_mount_target" "course_mount" {
+  count           = length(module.vpc.private_subnets)
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_course_mt_sg.id]
