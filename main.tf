@@ -362,6 +362,7 @@ resource "aws_security_group" "efs_mt_sg" {
 }
 
 resource "aws_efs_file_system" "course" {
+  encrypted = true
 }
 
 resource "aws_efs_mount_target" "course_mount" {
@@ -369,8 +370,6 @@ resource "aws_efs_mount_target" "course_mount" {
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_course_mt_sg.id]
-  encrypted = true
-  tags = local.tags 
   
 }
 
