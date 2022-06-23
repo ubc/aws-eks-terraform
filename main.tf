@@ -64,6 +64,7 @@ resource "random_string" "suffix" {
 }
 
 resource "aws_db_instance" "rds" {
+  count = "${var.eks_rds_db != "0" ? "1" : "0"}"
   identifier = "rds-db-${local.cluster_name}"
   allocated_storage    = 20
   storage_type         = "gp2"
