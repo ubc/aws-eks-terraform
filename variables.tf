@@ -17,6 +17,21 @@ variable "eks_node_disk_size" {
   default = "72"
 }
 
+variable "eks_rds_db" {
+  description = "Create RDS MySQL Database"
+  default = "0"
+}
+
+variable "eks_efs_storage" {
+  description = "Create Extra EFS Storage"
+  default = "0"
+}
+
+variable "eks_efs_storage_size" {
+  description = "Extra EFS Storage Size in GB"
+  default = "100"
+}
+
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
