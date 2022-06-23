@@ -372,7 +372,7 @@ resource "aws_efs_mount_target" "course_mount" {
 }
 
 resource "aws_security_group" "efs_course_mt_sg" {
-  count = "${var.eks_rds_db != "0" ? "1" : "0"}"
+  count = "${var.eks_efs_storage != "0" ? "1" : "0"}"
   name_prefix = "efs_course_sg-${local.cluster_name}"
   description = "Allow NFSv4 traffic"
   vpc_id      = module.vpc.vpc_id
