@@ -1,6 +1,43 @@
 provider "aws" {
-    profile = var.profile
-    region  = var.region
+    profile = "saml"
+    region  = "ca-central-1"
+    
+}
+
+### Storing the state file on the bucket ####
+
+resource "aws_s3_bucket" "terraform-state" {
+  bucket = "open-jupyter-ubc-ca-terraform-tfstate"
+
+  versioning{
+    enabled = true
+  }
+}
+
+### DynamoDB table for locks ####
+
+resource "aws_dynamodb_table" "terraform-locks" {
+    name         = "terraformlocks-openjupyter"
+    billing_mode = "PAY_PER_REQUEST"
+    hash_key     = "LockID"
+
+    attribute {
+        name = "LockID"
+        type = "S"
+    }
+}
+
+terraform {
+
+  backend "s3" {
+    bucket = "open-jupyter-ubc-ca-terraform-tfstate"
+    key = "open-jupyter-ubc-ca-terraform-tfstate/jupyter-open-stg/terraform.tfstate"
+    region = "ca-central-1"
+    dynamodb_table = "terraformlocks-openjupyter"
+    encrypt = true
+    profile = "saml"
+    
+  }
 }
 
 provider "random" {
@@ -47,7 +84,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}-${var.tag_enviroment_name}" : "${var.cluster_base_name}-${var.tag_enviroment_name}-${random_string.suffix.result}"}"
+  cluster_name = "jupyter-open-stg"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -72,6 +109,25 @@ resource "aws_db_instance" "rds" {
   engine_version       = "5.7"
   instance_class       = "db.t2.micro"
   db_name              = "jhubshib"
+  username             = "admin"
+  password             = "UBC-Shib-Backend"
+  parameter_group_name = "default.mysql5.7"
+  publicly_accessible = false
+  skip_final_snapshot = true
+  vpc_security_group_ids = [aws_security_group.rds_mysql.id]
+  db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
+  tags = local.tags
+}
+
+resource "aws_db_instance" "rdshub" {
+  count = "1"
+  identifier = "rds-db-jupyter-hub-open-stg"
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  db_name              = "jupyterhub"
   username             = "admin"
   password             = "UBC-Shib-Backend"
   parameter_group_name = "default.mysql5.7"
