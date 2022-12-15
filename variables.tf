@@ -4,7 +4,7 @@ variable "region" {
 
 variable "profile" {
   description = "AWS profile to use for authentication"
-  default     = "urn:amazon:webservices"
+  default     = "saml"
 }
 
 variable "vpc_cidr" {
@@ -77,7 +77,7 @@ variable "kube_version" {
 
 variable "tag_project_name" {
   description = "Project Name Tag"
-  default     = "Project Name"
+  default     = "jupyterhub"
 }
 
 variable "tag_enviroment_name" {
