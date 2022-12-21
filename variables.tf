@@ -25,13 +25,13 @@ variable "eks_rds_db" {
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
-  default = ["10.1.1.0/24", "10.1.2.0/24"]
+  default = ["10.1.0.0/17", "10.1.128.0/24"]  
 }
 
 variable "vpc_public_subnets" {
   description = "Public Networks used by EKS Cluster"
   type    = list
-  default = ["10.1.101.0/24", "10.1.102.0/24"]
+  default = ["10.1.129.0/24", "10.1.130.0/24"]
 }
 
 variable "eks_instance_types" {
@@ -94,3 +94,4 @@ variable "tag_dept_service" {
   description = "Service Tag"
   default     = "Service Name"
 }
+

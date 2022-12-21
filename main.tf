@@ -6,26 +6,26 @@ provider "aws" {
 
 ### Storing the state file on the bucket ####
 
-resource "aws_s3_bucket" "terraform-state" {
-  bucket = "open-jupyter-ubc-ca-terraform-tfstate"
+#resource "aws_s3_bucket" "terraform-state" {
+#  bucket = "open-jupyter-ubc-ca-terraform-tfstate"
 
-  versioning{
-    enabled = true
-  }
-}
+#  versioning{
+#    enabled = true
+#  }
+#}
 
 ### DynamoDB table for locks ####
 
-resource "aws_dynamodb_table" "terraform-locks" {
-    name         = "terraformlocks-openjupyter"
-    billing_mode = "PAY_PER_REQUEST"
-    hash_key     = "LockID"
+# resource "aws_dynamodb_table" "terraform-locks" {
+#    name         = "terraformlocks-openjupyter"
+#    billing_mode = "PAY_PER_REQUEST"
+#    hash_key     = "LockID"
 
-    attribute {
-        name = "LockID"
-        type = "S"
-    }
-}
+#    attribute {
+#        name = "LockID"
+#        type = "S"
+#    }
+#}
 
 terraform {
 
@@ -251,6 +251,7 @@ resource "null_resource" "kube_config_create" {
   }
 }
 
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
 
@@ -280,6 +281,7 @@ module "vpc" {
     "project"                                     = "${local.tags.project}"
   }
 }
+
 
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
@@ -329,6 +331,7 @@ module "eks" {
     instance_types = var.eks_instance_types
     instance_type  = var.eks_instance_type
     enable_monitoring = true
+   
 
     block_device_mappings = {
       xvda = {
@@ -354,6 +357,7 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
+      
         
       tags = merge(
         local.tags,
