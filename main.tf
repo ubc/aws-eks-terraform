@@ -252,6 +252,7 @@ resource "null_resource" "kube_config_create" {
 }
 
 
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
 
@@ -350,7 +351,26 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "wg-${local.cluster_name}"
+      name                      = "management-pods-stg"
+      desired_capacity          = var.wg_desired_cap
+      min_size                  = var.wg_min_size
+      max_size                  = var.wg_max_size
+      additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
+      create_launch_template = true
+      launch_template_name = ""
+      
+        
+      tags = merge(
+        local.tags,
+        {
+          "k8s.io/cluster-autoscaler/enabled"               = "true"
+          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
+        }
+      )
+    },
+
+      {
+      name                      = "user-pods-stg"
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
