@@ -31,7 +31,7 @@ terraform {
 
   backend "s3" {
     bucket = "open-jupyter-ubc-ca-terraform-tfstate"
-    key = "open-jupyter-ubc-ca-terraform-tfstate/jupyter-open-production/terraform.tfstate"
+    key = "open-jupyter-ubc-ca-terraform-tfstate/jupyter-open-dryrun/terraform.tfstate"
     region = "ca-central-1"
 #    dynamodb_table = "terraformlocks-openjupyter"
     encrypt = true
@@ -84,7 +84,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "jupyter-open-production"
+  cluster_name = "jupyter-open-dryrun"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -121,7 +121,7 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_instance" "rdshub" {
   count = "1"
-  identifier = "rds-db-jupyter-hub-open-production"
+  identifier = "rds-db-jupyter-hub-open-dryrun"
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"
@@ -351,7 +351,7 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "management-pods-prod"
+      name                      = "management-pods-dryrun"
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
@@ -370,7 +370,7 @@ module "eks" {
     },
 
       {
-      name                      = "user-pods-prod"
+      name                      = "user-pods-dryrun"
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
