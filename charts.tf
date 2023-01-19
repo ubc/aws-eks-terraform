@@ -4,7 +4,7 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "= 2.5.1"
+      version = "~> 2.8.0"
     }
   }
 }
@@ -27,7 +27,7 @@ resource "helm_release" "cluster_autoscaler" {
   namespace        = "kube-system"
   repository       = "https://kubernetes.github.io/autoscaler"
   chart            = "cluster-autoscaler"
-  version          = "9.10.8"
+  version          = "9.21.1"
   create_namespace = false
 
   set {
@@ -63,7 +63,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
 }
 
@@ -95,7 +95,7 @@ resource "helm_release" "kubecost" {
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
 }
 
@@ -107,6 +107,6 @@ resource "helm_release" "metrics-server" {
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
 }

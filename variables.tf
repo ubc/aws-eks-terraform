@@ -1,5 +1,5 @@
 variable "region" {
-  default = "us-west-2"
+  default = "ca-central-1"
 }
 
 variable "profile" {
@@ -25,7 +25,7 @@ variable "eks_rds_db" {
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
-  default = ["10.1.0.0/17", "10.1.128.0/24"]  
+  default = ["10.1.0.0/17", "10.1.128.0/24"]
 }
 
 variable "vpc_public_subnets" {
@@ -62,10 +62,25 @@ variable "wg_min_size" {
 
 variable "wg_max_size" {
   description = "Maximum size for Worker node"
-  default     = "10"
+  default     = "2"
 }
 
 variable "wg_desired_cap" {
+  description = "Desired capacity for Worker node"
+  default     = "0"
+}
+
+variable "ug_min_size" {
+  description = "Minimum size for Worker node"
+  default     = "0"
+}
+
+variable "ug_max_size" {
+  description = "Maximum size for Worker node"
+  default     = "5"
+}
+
+variable "ug_desired_cap" {
   description = "Desired capacity for Worker node"
   default     = "0"
 }
@@ -80,9 +95,9 @@ variable "tag_project_name" {
   default     = "Project Name"
 }
 
-variable "tag_enviroment_name" {
-  description = "Enviroment Name Tag"
-  default     = "Production/Staging/Development"
+variable "environment" {
+  description = "Environment Name"
+  default     = "dev"
 }
 
 variable "tag_department" {

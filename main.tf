@@ -1,74 +1,30 @@
-provider "aws" {
-    profile = "saml"
-    region  = "ca-central-1"
-    
-}
-
-### Storing the state file on the bucket ####
-
-#resource "aws_s3_bucket" "terraform-state" {
-#  bucket = "open-jupyter-ubc-ca-terraform-tfstate"
-
-#  versioning{
-#    enabled = true
-#  }
-#}
-
-### DynamoDB table for locks ####
-
-# resource "aws_dynamodb_table" "terraform-locks" {
-#    name         = "terraformlocks-openjupyter"
-#    billing_mode = "PAY_PER_REQUEST"
-#    hash_key     = "LockID"
-
-#    attribute {
-#        name = "LockID"
-#        type = "S"
-#    }
-#}
-
-terraform {
-
-  backend "s3" {
-    bucket = "open-jupyter-ubc-ca-terraform-tfstate"
-    key = "open-jupyter-ubc-ca-terraform-tfstate/jupyter-open-dryrun/terraform.tfstate"
-    region = "ca-central-1"
-#    dynamodb_table = "terraformlocks-openjupyter"
-    encrypt = true
-    profile = "saml"
-    
-  }
-}
-
-provider "random" {
-}
-
-provider "local" {
-}
-
-provider "null" {
-}
-
-provider "template" {
+locals {
+  validate_environment_cnd = var.environment != terraform.workspace
+  validate_environment_msg = "Invalid environment. Must match the workspace name"
+  validate_environment_chk = regex(
+    "^${local.validate_environment_msg}$",
+    ( !local.validate_environment_cnd
+    ? local.validate_environment_msg
+    : "" ) )
 }
 
 data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {}
 
-resource "null_resource" "apply" {
-  triggers = {
-    cmd_patch  = <<-EOT
-      kubectl patch configmap/aws-auth --patch "${module.eks.aws_auth_configmap_yaml}" -n kube-system
-    EOT
-  }
-
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = self.triggers.cmd_patch
-  }
-}
-
+#resource "null_resource" "apply" {
+#  triggers = {
+#    cmd_patch  = <<-EOT
+#      kubectl patch configmap/aws-auth --patch "${module.eks.aws_auth_configmap_yaml}" -n kube-system
+#    EOT
+#  }
+#
+#  provisioner "local-exec" {
+#    interpreter = ["/bin/bash", "-c"]
+#    command = self.triggers.cmd_patch
+#  }
+#}
+#
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
@@ -84,11 +40,11 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "jupyter-open-dryrun"
+  cluster_name = "jupyter-open-${var.environment}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
-    Environment  = "${var.tag_enviroment_name}"
+    Environment  = "${var.environment}"
     project      = "${var.tag_project_name}"
     department   = "${var.tag_department}"
     dept_service = "${var.tag_dept_service}"
@@ -121,7 +77,7 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_instance" "rdshub" {
   count = "1"
-  identifier = "rds-db-jupyter-hub-open-dryrun"
+  identifier = "rds-db-jupyter-hub-open-${var.environment}"
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"
@@ -197,7 +153,7 @@ resource "aws_security_group" "alb_prod_sg" {
       "0.0.0.0/0"
     ]
   }
-      
+
   tags = merge(
     local.tags,
     {
@@ -247,7 +203,7 @@ resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_id) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
+    command = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
 
@@ -286,22 +242,25 @@ module "vpc" {
 
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
-  cluster_version = var.kube_version
-  version = "18.17.0"
+  version = "~> 18.31.0"
+
   cluster_name = local.cluster_name
+  cluster_version = var.kube_version
+
   subnet_ids = module.vpc.private_subnets
   vpc_id = module.vpc.vpc_id
   enable_irsa = true
   create_cloudwatch_log_group = false
   node_security_group_additional_rules = {
-    ingress_allow_access_from_control_plane = {
-      type                          = "ingress"
-      protocol                      = "tcp"
-      from_port                     = 9443
-      to_port                       = 9443
-      source_cluster_security_group = true
-      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
-    }
+    # this rule is already inclued in the module
+#    ingress_allow_access_from_control_plane = {
+#      type                          = "ingress"
+#      protocol                      = "tcp"
+#      from_port                     = 9443
+#      to_port                       = 9443
+#      source_cluster_security_group = true
+#      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+#    }
     egress_all = {
       protocol         = "-1"
       from_port        = 0
@@ -332,7 +291,7 @@ module "eks" {
     instance_types = var.eks_instance_types
     instance_type  = var.eks_instance_type
     enable_monitoring = true
-   
+
 
     block_device_mappings = {
       xvda = {
@@ -351,15 +310,15 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "management-pods-dryrun"
+      name                      = "management-pods-${var.environment}"
       desired_capacity          = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
-      
-        
+
+
       tags = merge(
         local.tags,
         {
@@ -370,15 +329,13 @@ module "eks" {
     },
 
       {
-      name                      = "user-pods-dryrun"
-      desired_capacity          = var.wg_desired_cap
-      min_size                  = var.wg_min_size
-      max_size                  = var.wg_max_size
+      name                      = "user-pods-${var.environment}"
+      desired_capacity          = var.ug_desired_cap
+      min_size                  = var.ug_min_size
+      max_size                  = var.ug_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
-      
-        
       tags = merge(
         local.tags,
         {
@@ -420,13 +377,13 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
-      
-  tags = local.tags    
+
+  tags = local.tags
 }
 
 resource "aws_efs_file_system" "course" {
   encrypted = true
-  tags = local.tags    
+  tags = local.tags
 }
 
 resource "aws_efs_mount_target" "course_mount" {
@@ -434,5 +391,5 @@ resource "aws_efs_mount_target" "course_mount" {
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
-  
+
 }
