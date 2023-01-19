@@ -4,7 +4,7 @@ variable "region" {
 
 variable "profile" {
   description = "AWS profile to use for authentication"
-  default     = "urn:amazon:webservices"
+  default     = "default"
 }
 
 variable "vpc_cidr" {
@@ -14,7 +14,7 @@ variable "vpc_cidr" {
 
 variable "eks_node_disk_size" {
   description = "AWS EKS Node disk size in GB"
-  default = "72"
+  default = "64"
 }
 
 variable "eks_rds_db" {
@@ -37,17 +37,17 @@ variable "vpc_public_subnets" {
 variable "eks_instance_types" {
   description = "List of AWS Node types available to EKS Cluster"
   type    = list
-  default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
+  default = ["t3a.xlarge", "t3a.large"]
 }
 
 variable "eks_instance_type" {
   description = "AWS Node type for user pod nodes"
-  default     = "m5.xlarge"
+  default     = "t3a.large"
 }
 
 variable "cluster_base_name" {
   description = "Base/Prefix Name of EKS Cluster"
-  default     = "UBC-EKS"
+  default     = "jupyterhub"
 }
 
 variable "cluster_name_random" {
@@ -56,32 +56,32 @@ variable "cluster_name_random" {
 }
 
 variable "wg_min_size" {
-  description = "Minimum size for Worker node"
+  description = "Minimum size for worker node"
   default     = "0"
 }
 
 variable "wg_max_size" {
-  description = "Maximum size for Worker node"
+  description = "Maximum size for worker node"
   default     = "2"
 }
 
 variable "wg_desired_cap" {
-  description = "Desired capacity for Worker node"
+  description = "Desired capacity for worker node"
   default     = "0"
 }
 
 variable "ug_min_size" {
-  description = "Minimum size for Worker node"
+  description = "Minimum size for user node"
   default     = "0"
 }
 
 variable "ug_max_size" {
-  description = "Maximum size for Worker node"
-  default     = "5"
+  description = "Maximum size for user node"
+  default     = "2"
 }
 
 variable "ug_desired_cap" {
-  description = "Desired capacity for Worker node"
+  description = "Desired capacity for user node"
   default     = "0"
 }
 
@@ -92,7 +92,7 @@ variable "kube_version" {
 
 variable "tag_project_name" {
   description = "Project Name Tag"
-  default     = "Project Name"
+  default     = "jupyterhub"
 }
 
 variable "environment" {
@@ -102,12 +102,12 @@ variable "environment" {
 
 variable "tag_department" {
   description = "Department Tag"
-  default     = "Department Name"
+  default     = "Department"
 }
 
 variable "tag_dept_service" {
   description = "Service Tag"
-  default     = "Service Name"
+  default     = "Jupyterhub"
 }
 
 variable "enable_autoscaler" {
