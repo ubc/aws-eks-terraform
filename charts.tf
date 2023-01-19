@@ -24,6 +24,7 @@ provider "helm" {
 
 resource "helm_release" "cluster_autoscaler" {
   name             = "cluster-autoscaler"
+  count            = var.enable_autoscaler ? 1 : 0
   namespace        = "kube-system"
   repository       = "https://kubernetes.github.io/autoscaler"
   chart            = "cluster-autoscaler"
@@ -42,7 +43,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   set {
     name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.cluster_autoscaler_irsa.iam_role_arn
+    value = module.cluster_autoscaler_irsa[0].iam_role_arn
     type  = "string"
   }
 
@@ -71,6 +72,8 @@ module "cluster_autoscaler_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 4.12"
 
+  count            = var.enable_autoscaler ? 1 : 0
+
   role_name_prefix = "cluster-autoscaler"
   role_description = "IRSA role for cluster autoscaler"
 
@@ -89,6 +92,7 @@ module "cluster_autoscaler_irsa" {
 
 resource "helm_release" "kubecost" {
   name = "kubecost"
+  count = var.enable_kubecost ? 1 : 0
   repository = "https://kubecost.github.io/cost-analyzer/"
   chart      = "cost-analyzer"
   namespace  = "default"
@@ -101,6 +105,7 @@ resource "helm_release" "kubecost" {
 
 resource "helm_release" "metrics-server" {
   name = "metrics-server"
+  count = var.enable_metricsserver ? 1 : 0
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "default"

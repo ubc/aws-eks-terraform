@@ -110,3 +110,17 @@ variable "tag_dept_service" {
   default     = "Service Name"
 }
 
+variable "enable_autoscaler" {
+  description = "Enable/Disable cluster autoscale"
+  default     = true
+}
+
+variable "enable_kubecost" {
+  description = "Enable/Disable kubecost"
+  default     = false
+}
+
+variable "enable_metricsserver" {
+  description = "Enable/Disable metrics server"
+  default     = true
+}
