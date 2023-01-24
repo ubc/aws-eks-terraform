@@ -25,11 +25,6 @@ data "aws_availability_zones" "available" {}
 #  }
 #}
 #
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
@@ -64,25 +59,6 @@ resource "aws_db_instance" "rds" {
   engine               = "mysql"
   engine_version       = "5.7"
   instance_class       = "db.t2.micro"
-  db_name              = "jhubshib"
-  username             = "admin"
-  password             = "UBC-Shib-Backend"
-  parameter_group_name = "default.mysql5.7"
-  publicly_accessible = false
-  skip_final_snapshot = true
-  vpc_security_group_ids = [aws_security_group.rds_mysql.id]
-  db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
-  tags = local.tags
-}
-
-resource "aws_db_instance" "rdshub" {
-  count = "1"
-  identifier = "rds-db-jupyter-hub-open-${var.environment}"
-  allocated_storage    = 20
-  storage_type         = "gp2"
-  engine               = "mysql"
-  engine_version       = "5.7"
-  instance_class       = "db.t2.micro"
   db_name              = "jupyterhub"
   username             = "admin"
   password             = "UBC-Shib-Backend"
@@ -93,7 +69,6 @@ resource "aws_db_instance" "rdshub" {
   db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
   tags = local.tags
 }
-
 
 resource "aws_security_group" "worker_group_mgmt_one" {
   name_prefix = "aws-sg-wgm-${local.cluster_name}"
