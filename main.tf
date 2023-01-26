@@ -285,7 +285,7 @@ module "eks" {
   eks_managed_node_groups = [
     {
       name                      = "management-pods-${var.environment}"
-      desired_capacity          = var.wg_desired_cap
+      desired_size              = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
@@ -304,7 +304,7 @@ module "eks" {
 
       {
       name                      = "user-pods-${var.environment}"
-      desired_capacity          = var.ug_desired_cap
+      desired_size              = var.ug_desired_cap
       min_size                  = var.ug_min_size
       max_size                  = var.ug_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
