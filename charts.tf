@@ -115,3 +115,23 @@ resource "helm_release" "metrics-server" {
     #null_resource.apply,
   ]
 }
+
+resource "helm_release" "cert-manager" {
+  name = "cert-manager"
+  count = var.enable_certmanager ? 1 : 0
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  create_namespace = true
+
+  set {
+    name  = "installCRDs"
+    value = true
+  }
+
+  depends_on = [
+    module.eks.cluster_id,
+    #null_resource.apply,
+  ]
+}
+
+

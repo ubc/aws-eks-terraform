@@ -124,3 +124,8 @@ variable "enable_metricsserver" {
   description = "Enable/Disable metrics server"
   default     = true
 }
+
+variable "enable_certmanager" {
+  description = "Enable/Disable cert manager"
+  default     = false
+}
