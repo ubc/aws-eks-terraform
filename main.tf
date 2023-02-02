@@ -184,11 +184,6 @@ resource "null_resource" "kube_config_create" {
   }
 }
 
-resource "null_resource" "container_insights" {
-  provisioner "local-exec" {
-   command = "/bin/bash container-insights.sh"
-  }
-}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -333,6 +328,11 @@ module "eks" {
     }
   ]
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
+}
+
+resource "aws_iam_role_policy_attachment" "node_role_log_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = module.eks.eks_managed_node_groups[0].iam_role_name
 }
 
 resource "aws_efs_file_system" "home" {

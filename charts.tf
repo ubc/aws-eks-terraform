@@ -134,4 +134,40 @@ resource "helm_release" "cert-manager" {
   ]
 }
 
+resource "helm_release" "container-insights" {
+  name = "container-insights"
+  repository = "https://aws.github.io/eks-charts"
+  chart = "aws-cloudwatch-metrics"
+  create_namespace = true
 
+  depends_on = [
+    module.eks.cluster_id
+  ]
+  
+}
+
+resource "helm_release" "fluent_bit_cloudwatch" {
+  name = "fluent-bit"
+  repository = "https://aws.github.io/eks-charts"
+  chart = "aws-for-fluent-bit"
+  create_namespace = true
+  set {
+    name = "region"
+    value = var.region
+ }
+
+ set {
+  name = "logGroupName"
+  value = var.fluentbit_group
+ }
+  
+set {
+  name = "logStreamPrefix"
+  value = var.fluentbit_stream_name
+}
+
+  depends_on=[
+    module.eks.cluster_id
+  ]
+  
+}
