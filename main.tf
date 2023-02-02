@@ -26,6 +26,8 @@ data "aws_availability_zones" "available" {}
 #}
 #
 
+
+
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
@@ -182,7 +184,11 @@ resource "null_resource" "kube_config_create" {
   }
 }
 
-
+resource "null_resource" "container_insights" {
+  provisioner "local-exec" {
+   command = "/bin/bash container-insights.sh"
+  }
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -310,6 +316,13 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
+      taints = [
+        {
+          key = "hub.jupyter.org/dedicated"
+          value = "user"
+          effect = "NO_SCHEDULE"
+        }
+      ]
       tags = merge(
         local.tags,
         {
