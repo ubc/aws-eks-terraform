@@ -152,17 +152,17 @@ resource "helm_release" "fluent_bit_cloudwatch" {
   chart = "aws-for-fluent-bit"
   create_namespace = true
   set {
-    name = "region"
+    name = "cloudWatch.region"
     value = var.region
  }
 
  set {
-  name = "logGroupName"
+  name = "cloudWatch.logGroupName"
   value = var.fluentbit_group
  }
   
 set {
-  name = "logStreamPrefix"
+  name = "cloudWatch.logStreamPrefix"
   value = var.fluentbit_stream_name
 }
 
