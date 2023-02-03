@@ -138,5 +138,5 @@ variable "fluentbit_group" {
 
 variable "fluentbit_stream_name" {
   description = "fluent bit cloudwatch log stream"
-  default = "fluentbit-jupyter-open"  
+  default = "fluentbit-jupyter"  
 }
