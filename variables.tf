@@ -132,7 +132,7 @@ variable "enable_certmanager" {
 
 variable "fluentbit_group" {
   description = "fluent bit cloudwatch log group"
-  default = "/aws/eks/fluentbit-cloudwatch/jupyter-open-prd/logs"
+  default = "/aws/eks/fluentbit-cloudwatch/jupyter/logs"
   
 }
 

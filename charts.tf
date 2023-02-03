@@ -166,6 +166,11 @@ set {
   value = var.fluentbit_stream_name
 }
 
+set {
+  name = "cloudWatch.logRetentionDays"
+  value = "30"
+}
+
   depends_on=[
     module.eks.cluster_id
   ]
