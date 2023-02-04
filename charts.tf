@@ -1,10 +1,20 @@
-provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    token                  = data.aws_eks_cluster_auth.cluster.token
+terraform {
+  required_version = ">= 1.0.0"
+
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.8.0"
+    }
   }
 }
+
+provider "helm" {
+  kubernetes {
+    config_path= "~/.kube/config"
+  }
+}
+
 
 ################################################################################
 # Cluster Autoscaler
@@ -14,10 +24,11 @@ provider "helm" {
 
 resource "helm_release" "cluster_autoscaler" {
   name             = "cluster-autoscaler"
+  count            = var.enable_autoscaler ? 1 : 0
   namespace        = "kube-system"
   repository       = "https://kubernetes.github.io/autoscaler"
   chart            = "cluster-autoscaler"
-  version          = "9.10.8"
+  version          = "9.21.1"
   create_namespace = false
 
   set {
@@ -32,7 +43,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   set {
     name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.cluster_autoscaler_irsa.iam_role_arn
+    value = module.cluster_autoscaler_irsa[0].iam_role_arn
     type  = "string"
   }
 
@@ -53,13 +64,15 @@ resource "helm_release" "cluster_autoscaler" {
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
 }
 
 module "cluster_autoscaler_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 4.12"
+
+  count            = var.enable_autoscaler ? 1 : 0
 
   role_name_prefix = "cluster-autoscaler"
   role_description = "IRSA role for cluster autoscaler"
@@ -79,24 +92,87 @@ module "cluster_autoscaler_irsa" {
 
 resource "helm_release" "kubecost" {
   name = "kubecost"
+  count = var.enable_kubecost ? 1 : 0
   repository = "https://kubecost.github.io/cost-analyzer/"
   chart      = "cost-analyzer"
   namespace  = "default"
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
 }
 
 resource "helm_release" "metrics-server" {
   name = "metrics-server"
+  count = var.enable_metricsserver ? 1 : 0
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "default"
 
   depends_on = [
     module.eks.cluster_id,
-    null_resource.apply,
+    #null_resource.apply,
   ]
+}
+
+resource "helm_release" "cert-manager" {
+  name = "cert-manager"
+  count = var.enable_certmanager ? 1 : 0
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  create_namespace = true
+
+  set {
+    name  = "installCRDs"
+    value = true
+  }
+
+  depends_on = [
+    module.eks.cluster_id,
+    #null_resource.apply,
+  ]
+}
+
+resource "helm_release" "container-insights" {
+  name = "container-insights"
+  repository = "https://aws.github.io/eks-charts"
+  chart = "aws-cloudwatch-metrics"
+  create_namespace = true
+
+  depends_on = [
+    module.eks.cluster_id
+  ]
+  
+}
+
+resource "helm_release" "fluent_bit_cloudwatch" {
+  name = "fluent-bit"
+  repository = "https://aws.github.io/eks-charts"
+  chart = "aws-for-fluent-bit"
+  create_namespace = true
+  set {
+    name = "cloudWatch.region"
+    value = var.region
+ }
+
+ set {
+  name = "cloudWatch.logGroupName"
+  value = var.fluentbit_group
+ }
+  
+set {
+  name = "cloudWatch.logStreamPrefix"
+  value = var.fluentbit_stream_name
+}
+
+set {
+  name = "cloudWatch.logRetentionDays"
+  value = "30"
+}
+
+  depends_on=[
+    module.eks.cluster_id
+  ]
+  
 }

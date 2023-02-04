@@ -1,42 +1,32 @@
-provider "aws" {
-    profile = var.profile
-    region  = var.region
-}
-
-provider "random" {
-}
-
-provider "local" {
-}
-
-provider "null" {
-}
-
-provider "template" {
+locals {
+  validate_environment_cnd = var.environment != terraform.workspace
+  validate_environment_msg = "Invalid environment. Must match the workspace name"
+  validate_environment_chk = regex(
+    "^${local.validate_environment_msg}$",
+    ( !local.validate_environment_cnd
+    ? local.validate_environment_msg
+    : "" ) )
 }
 
 data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {}
 
-resource "null_resource" "apply" {
-  triggers = {
-    cmd_patch  = <<-EOT
-      kubectl patch configmap/aws-auth --patch "${module.eks.aws_auth_configmap_yaml}" -n kube-system
-    EOT
-  }
+#resource "null_resource" "apply" {
+#  triggers = {
+#    cmd_patch  = <<-EOT
+#      kubectl patch configmap/aws-auth --patch "${module.eks.aws_auth_configmap_yaml}" -n kube-system
+#    EOT
+#  }
+#
+#  provisioner "local-exec" {
+#    interpreter = ["/bin/bash", "-c"]
+#    command = self.triggers.cmd_patch
+#  }
+#}
+#
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = self.triggers.cmd_patch
-  }
-}
 
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
@@ -47,11 +37,11 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "${var.cluster_name_random != "1" ? "${var.cluster_base_name}-${var.tag_enviroment_name}" : "${var.cluster_base_name}-${var.tag_enviroment_name}-${random_string.suffix.result}"}"
+  cluster_name = "jupyter-open-${var.environment}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
-    Environment  = "${var.tag_enviroment_name}"
+    Environment  = "${var.environment}"
     project      = "${var.tag_project_name}"
     department   = "${var.tag_department}"
     dept_service = "${var.tag_dept_service}"
@@ -71,7 +61,7 @@ resource "aws_db_instance" "rds" {
   engine               = "mysql"
   engine_version       = "5.7"
   instance_class       = "db.t2.micro"
-  db_name              = "jhubshib"
+  db_name              = "jupyterhub"
   username             = "admin"
   password             = "UBC-Shib-Backend"
   parameter_group_name = "default.mysql5.7"
@@ -81,7 +71,6 @@ resource "aws_db_instance" "rds" {
   db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
   tags = local.tags
 }
-
 
 resource "aws_security_group" "worker_group_mgmt_one" {
   name_prefix = "aws-sg-wgm-${local.cluster_name}"
@@ -141,7 +130,7 @@ resource "aws_security_group" "alb_prod_sg" {
       "0.0.0.0/0"
     ]
   }
-      
+
   tags = merge(
     local.tags,
     {
@@ -191,9 +180,10 @@ resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_id) --profile $(terraform output -raw profile) && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
+    command = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
+
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -225,11 +215,14 @@ module "vpc" {
   }
 }
 
+
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
-  cluster_version = var.kube_version
-  version = "18.17.0"
+  version = "~> 18.31.0"
+
   cluster_name = local.cluster_name
+  cluster_version = var.kube_version
+
   subnet_ids = module.vpc.private_subnets
   vpc_id = module.vpc.vpc_id
   enable_irsa = true
@@ -274,6 +267,7 @@ module "eks" {
     instance_type  = var.eks_instance_type
     enable_monitoring = true
 
+
     block_device_mappings = {
       xvda = {
         device_name = "/dev/xvda"
@@ -291,14 +285,39 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "wg-${local.cluster_name}"
-      desired_capacity          = var.wg_desired_cap
+      name                      = "management-pods-${var.environment}"
+      desired_size              = var.wg_desired_cap
       min_size                  = var.wg_min_size
       max_size                  = var.wg_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template = true
       launch_template_name = ""
-        
+
+
+      tags = merge(
+        local.tags,
+        {
+          "k8s.io/cluster-autoscaler/enabled"               = "true"
+          "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
+        }
+      )
+    },
+
+      {
+      name                      = "user-pods-${var.environment}"
+      desired_size              = var.ug_desired_cap
+      min_size                  = var.ug_min_size
+      max_size                  = var.ug_max_size
+      additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
+      create_launch_template = true
+      launch_template_name = ""
+      taints = [
+        {
+          key = "hub.jupyter.org/dedicated"
+          value = "user"
+          effect = "NO_SCHEDULE"
+        }
+      ]
       tags = merge(
         local.tags,
         {
@@ -309,6 +328,11 @@ module "eks" {
     }
   ]
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
+}
+
+resource "aws_iam_role_policy_attachment" "node_role_log_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = module.eks.eks_managed_node_groups[0].iam_role_name
 }
 
 resource "aws_efs_file_system" "home" {
@@ -340,13 +364,13 @@ resource "aws_security_group" "efs_mt_sg" {
       "10.1.0.0/16"
     ]
   }
-      
-  tags = local.tags    
+
+  tags = local.tags
 }
 
 resource "aws_efs_file_system" "course" {
   encrypted = true
-  tags = local.tags    
+  tags = local.tags
 }
 
 resource "aws_efs_mount_target" "course_mount" {
@@ -354,5 +378,5 @@ resource "aws_efs_mount_target" "course_mount" {
   file_system_id  = aws_efs_file_system.course.id
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
-  
+
 }

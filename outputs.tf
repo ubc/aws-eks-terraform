@@ -210,3 +210,13 @@ output "aws_auth_configmap_yaml" {
   description = "Formatted yaml output for base aws-auth configmap containing roles used in cluster node groups/fargate profiles"
   value       = module.eks.aws_auth_configmap_yaml
 }
+
+output "rds_endpoint_address" {
+  description = "RDS endpoint address for Shibboleth"
+  value       = aws_db_instance.rds[0].address
+}
+
+output "rds_endpoint_port" {
+  description = "RDS endpoint port for Shibboleth"
+  value       = aws_db_instance.rds[0].port
+}

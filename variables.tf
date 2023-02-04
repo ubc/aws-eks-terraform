@@ -1,10 +1,10 @@
 variable "region" {
-  default = "us-west-2"
+  default = "ca-central-1"
 }
 
 variable "profile" {
   description = "AWS profile to use for authentication"
-  default     = "saml"
+  default     = "default"
 }
 
 variable "vpc_cidr" {
@@ -14,7 +14,7 @@ variable "vpc_cidr" {
 
 variable "eks_node_disk_size" {
   description = "AWS EKS Node disk size in GB"
-  default = "72"
+  default = "64"
 }
 
 variable "eks_rds_db" {
@@ -25,29 +25,29 @@ variable "eks_rds_db" {
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
   type    = list
-  default = ["10.1.1.0/24", "10.1.2.0/24"]
+  default = ["10.1.0.0/17", "10.1.128.0/24"]
 }
 
 variable "vpc_public_subnets" {
   description = "Public Networks used by EKS Cluster"
   type    = list
-  default = ["10.1.101.0/24", "10.1.102.0/24"]
+  default = ["10.1.129.0/24", "10.1.130.0/24"]
 }
 
 variable "eks_instance_types" {
   description = "List of AWS Node types available to EKS Cluster"
   type    = list
-  default = ["m5.xlarge", "m5n.xlarge", "m5n.large", "m5.large"]
+  default = ["t3a.xlarge", "t3a.large"]
 }
 
 variable "eks_instance_type" {
   description = "AWS Node type for user pod nodes"
-  default     = "m5.xlarge"
+  default     = "t3a.large"
 }
 
 variable "cluster_base_name" {
   description = "Base/Prefix Name of EKS Cluster"
-  default     = "UBC-EKS"
+  default     = "jupyterhub"
 }
 
 variable "cluster_name_random" {
@@ -56,17 +56,32 @@ variable "cluster_name_random" {
 }
 
 variable "wg_min_size" {
-  description = "Minimum size for Worker node"
+  description = "Minimum size for worker node"
   default     = "0"
 }
 
 variable "wg_max_size" {
-  description = "Maximum size for Worker node"
-  default     = "10"
+  description = "Maximum size for worker node"
+  default     = "2"
 }
 
 variable "wg_desired_cap" {
-  description = "Desired capacity for Worker node"
+  description = "Desired capacity for worker node"
+  default     = "0"
+}
+
+variable "ug_min_size" {
+  description = "Minimum size for user node"
+  default     = "0"
+}
+
+variable "ug_max_size" {
+  description = "Maximum size for user node"
+  default     = "2"
+}
+
+variable "ug_desired_cap" {
+  description = "Desired capacity for user node"
   default     = "0"
 }
 
@@ -80,17 +95,48 @@ variable "tag_project_name" {
   default     = "jupyterhub"
 }
 
-variable "tag_enviroment_name" {
-  description = "Enviroment Name Tag"
-  default     = "Production/Staging/Development"
+variable "environment" {
+  description = "Environment Name"
+  default     = "dev"
 }
 
 variable "tag_department" {
   description = "Department Tag"
-  default     = "Department Name"
+  default     = "Department"
 }
 
 variable "tag_dept_service" {
   description = "Service Tag"
-  default     = "Service Name"
+  default     = "Jupyterhub"
+}
+
+variable "enable_autoscaler" {
+  description = "Enable/Disable cluster autoscale"
+  default     = true
+}
+
+variable "enable_kubecost" {
+  description = "Enable/Disable kubecost"
+  default     = false
+}
+
+variable "enable_metricsserver" {
+  description = "Enable/Disable metrics server"
+  default     = true
+}
+
+variable "enable_certmanager" {
+  description = "Enable/Disable cert manager"
+  default     = false
+}
+
+variable "fluentbit_group" {
+  description = "fluent bit cloudwatch log group"
+  default = "/aws/eks/fluentbit-cloudwatch/jupyter/logs"
+
+}
+
+variable "fluentbit_stream_name" {
+  description = "fluent bit cloudwatch log stream"
+  default = "fluentbit-jupyter"
 }
