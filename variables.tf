@@ -140,3 +140,15 @@ variable "fluentbit_stream_name" {
   description = "fluent bit cloudwatch log stream"
   default = "fluentbit-jupyter"  
 }
+
+variable "sns_name" {
+  description = "name of the sns topic"
+  default = "jupyter-alerts"
+  
+}
+
+variable "webhook_url" {
+  description = "webook url of slack"
+  default = "your-slackwebhookurl"
+  
+}
