@@ -133,22 +133,10 @@ variable "enable_certmanager" {
 variable "fluentbit_group" {
   description = "fluent bit cloudwatch log group"
   default = "/aws/eks/fluentbit-cloudwatch/jupyter/logs"
-  
+
 }
 
 variable "fluentbit_stream_name" {
   description = "fluent bit cloudwatch log stream"
-  default = "fluentbit-jupyter"  
-}
-
-variable "sns_name" {
-  description = "name of the sns topic"
-  default = "jupyter-alerts"
-  
-}
-
-variable "webhook_url" {
-  description = "webook url of slack"
-  default = "your-slackwebhookurl"
-  
+  default = "fluentbit-jupyter"
 }
