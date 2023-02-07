@@ -12,7 +12,7 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
 2. [saml2aws](https://github.com/Versent/saml2aws)
 
-3. [AWS Cli](https://github.com/aws/aws-cli)
+3. [AWS Cli](https://github.com/aws/aws-cli)  v2.7.1+
 
 4. [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
