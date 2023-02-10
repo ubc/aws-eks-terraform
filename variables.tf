@@ -155,5 +155,5 @@ variable "webhook_url" {
 
 variable "alerts_enabled" {
   description = "variable to control if alerts are enabled or disabled"
-  default     = false
+  default     = true
 }
