@@ -3,9 +3,9 @@ locals {
   validate_environment_msg = "Invalid environment. Must match the workspace name"
   validate_environment_chk = regex(
     "^${local.validate_environment_msg}$",
-    ( !local.validate_environment_cnd
-    ? local.validate_environment_msg
-    : "" ) )
+    (!local.validate_environment_cnd
+      ? local.validate_environment_msg
+  : ""))
 }
 
 data "aws_caller_identity" "current" {}
@@ -37,7 +37,7 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 locals {
-  cluster_name = "jupyter-open-${var.environment}"
+  cluster_name                  = "jupyter-open-${var.environment}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -49,27 +49,27 @@ locals {
 }
 
 resource "random_string" "suffix" {
-  length = 8
+  length  = 8
   special = false
 }
 
 resource "aws_db_instance" "rds" {
-  count = "${var.eks_rds_db != "0" ? "1" : "0"}"
-  identifier = "rds-db-${local.cluster_name}"
-  allocated_storage    = 20
-  storage_type         = "gp2"
-  engine               = "mysql"
-  engine_version       = "5.7"
-  instance_class       = "db.t2.micro"
-  db_name              = "jupyterhub"
-  username             = "admin"
-  password             = "UBC-Shib-Backend"
-  parameter_group_name = "default.mysql5.7"
-  publicly_accessible = false
-  skip_final_snapshot = true
+  count                  = var.eks_rds_db != "0" ? "1" : "0"
+  identifier             = "rds-db-${local.cluster_name}"
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  engine                 = "mysql"
+  engine_version         = "5.7"
+  instance_class         = "db.t2.micro"
+  db_name                = "jupyterhub"
+  username               = "admin"
+  password               = "UBC-Shib-Backend"
+  parameter_group_name   = "default.mysql5.7"
+  publicly_accessible    = false
+  skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.rds_mysql.id]
-  db_subnet_group_name = aws_db_subnet_group.rds_mysql.name
-  tags = local.tags
+  db_subnet_group_name   = aws_db_subnet_group.rds_mysql.name
+  tags                   = local.tags
 }
 
 resource "aws_security_group" "worker_group_mgmt_one" {
@@ -135,7 +135,7 @@ resource "aws_security_group" "alb_prod_sg" {
     local.tags,
     {
       GithubRepo = "terraform-aws-eks"
-      GithubOrg = "terraform-aws-modules"
+      GithubOrg  = "terraform-aws-modules"
     }
   )
 }
@@ -170,7 +170,7 @@ resource "aws_security_group" "rds_mysql" {
 
 resource "aws_db_subnet_group" "rds_mysql" {
   name_prefix = "rds-db-sng-${local.cluster_name}"
-  subnet_ids = module.vpc.public_subnets
+  subnet_ids  = module.vpc.public_subnets
 
   tags = local.tags
 }
@@ -180,13 +180,13 @@ resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_id]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
+    command     = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
 
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source = "terraform-aws-modules/vpc/aws"
 
   name                 = "vpc-${local.cluster_name}"
   cidr                 = var.vpc_cidr
@@ -199,13 +199,13 @@ module "vpc" {
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "project" = "${local.tags.project}"
+    "project"                                     = "${local.tags.project}"
   }
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
-    "project"                                      = "${local.tags.project}"
+    "project"                                     = "${local.tags.project}"
   }
 
   private_subnet_tags = {
@@ -217,15 +217,15 @@ module "vpc" {
 
 
 module "eks" {
-  source       = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
   version = "~> 18.31.0"
 
-  cluster_name = local.cluster_name
+  cluster_name    = local.cluster_name
   cluster_version = var.kube_version
 
-  subnet_ids = module.vpc.private_subnets
-  vpc_id = module.vpc.vpc_id
-  enable_irsa = true
+  subnet_ids                  = module.vpc.private_subnets
+  vpc_id                      = module.vpc.vpc_id
+  enable_irsa                 = true
   create_cloudwatch_log_group = false
   node_security_group_additional_rules = {
     ingress_allow_access_from_control_plane = {
@@ -257,21 +257,21 @@ module "eks" {
     local.tags,
     {
       GithubRepo = "terraform-aws-eks"
-      GithubOrg = "terraform-aws-modules"
+      GithubOrg  = "terraform-aws-modules"
     }
   )
 
   eks_managed_node_group_defaults = {
-    disk_size      = var.eks_node_disk_size
-    instance_types = var.eks_instance_types
-    instance_type  = var.eks_instance_type
+    disk_size         = var.eks_node_disk_size
+    instance_types    = var.eks_instance_types
+    instance_type     = var.eks_instance_type
     enable_monitoring = true
 
 
     block_device_mappings = {
       xvda = {
         device_name = "/dev/xvda"
-        ebs         = {
+        ebs = {
           volume_size           = var.eks_node_disk_size
           volume_type           = "gp3"
           iops                  = 3500
@@ -285,13 +285,13 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                      = "management-pods-${var.environment}"
-      desired_size              = var.wg_desired_cap
-      min_size                  = var.wg_min_size
-      max_size                  = var.wg_max_size
+      name                          = "management-pods-${var.environment}"
+      desired_size                  = var.wg_desired_cap
+      min_size                      = var.wg_min_size
+      max_size                      = var.wg_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
-      create_launch_template = true
-      launch_template_name = ""
+      create_launch_template        = true
+      launch_template_name          = ""
 
 
       tags = merge(
@@ -303,18 +303,18 @@ module "eks" {
       )
     },
 
-      {
-      name                      = "user-pods-${var.environment}"
-      desired_size              = var.ug_desired_cap
-      min_size                  = var.ug_min_size
-      max_size                  = var.ug_max_size
+    {
+      name                          = "user-pods-${var.environment}"
+      desired_size                  = var.ug_desired_cap
+      min_size                      = var.ug_min_size
+      max_size                      = var.ug_max_size
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
-      create_launch_template = true
-      launch_template_name = ""
+      create_launch_template        = true
+      launch_template_name          = ""
       taints = [
         {
-          key = "hub.jupyter.org/dedicated"
-          value = "user"
+          key    = "hub.jupyter.org/dedicated"
+          value  = "user"
           effect = "NO_SCHEDULE"
         }
       ]
@@ -370,7 +370,7 @@ resource "aws_security_group" "efs_mt_sg" {
 
 resource "aws_efs_file_system" "course" {
   encrypted = true
-  tags = local.tags
+  tags      = local.tags
 }
 
 resource "aws_efs_mount_target" "course_mount" {

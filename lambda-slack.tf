@@ -43,9 +43,9 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.iam_policy_for_lambda.arn
   count      = var.alerts_enabled ? 1 : 0
+  role       = aws_iam_role.lambda_role[0].name
+  policy_arn = aws_iam_policy.iam_policy_for_lambda[0].arn
 }
 
 data "archive_file" "zip_lambda" {
@@ -58,7 +58,7 @@ resource "aws_lambda_function" "slack_lambda" {
   filename      = "${path.module}/lambda-slack/slack.zip"
   count         = var.alerts_enabled ? 1 : 0
   function_name = "slack-alert"
-  role          = aws_iam_role.lambda_role.arn
+  role          = aws_iam_role.lambda_role[0].arn
   handler       = "slack.lambda_handler"
   runtime       = "python3.8"
   depends_on    = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]

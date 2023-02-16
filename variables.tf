@@ -156,4 +156,32 @@ variable "webhook_url" {
 variable "alerts_enabled" {
   description = "variable to control if alerts are enabled or disabled"
   default     = true
+
 }
+
+
+variable "sns_alerts_arn" {
+  default = "arn:aws:sns:ca-central-1:032401129069:Kube-Alerts"
+}
+
+variable "cluster_name" {
+  description = "cluster name for cloudwatch alerts"
+  default     = "jupyter-open-stg"
+}
+
+variable "namespace" {
+  default = "ContainerInsights"
+}
+
+variable "dashboard_name" {
+  type    = string
+  default = "jupyter-open-stg"
+}
+
+variable "observability_namespace" {
+  default = "amazon-cloudwatch"
+
+}
+
+
+
