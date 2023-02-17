@@ -140,6 +140,7 @@ resource "helm_release" "container-insights" {
   chart            = "aws-cloudwatch-metrics"
   create_namespace = true
   namespace        = var.observability_namespace
+  count            = var.alerts_enabled ? 1 : 0
 
   depends_on = [
     module.eks.cluster_id
@@ -174,6 +175,7 @@ resource "helm_release" "fluent_bit_cloudwatch" {
   chart            = "aws-for-fluent-bit"
   create_namespace = true
   namespace        = var.observability_namespace
+  count            = var.alerts_enabled ? 1 : 0
   set {
     name  = "cloudWatch.region"
     value = var.region

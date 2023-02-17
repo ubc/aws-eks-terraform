@@ -160,13 +160,9 @@ variable "alerts_enabled" {
 }
 
 
-variable "sns_alerts_arn" {
-  default = "arn:aws:sns:ca-central-1:032401129069:Kube-Alerts"
-}
-
 variable "cluster_name" {
   description = "cluster name for cloudwatch alerts"
-  default     = "jupyter-open-stg"
+  default     = "CLUSTER_NAME"
 }
 
 variable "namespace" {
@@ -175,7 +171,7 @@ variable "namespace" {
 
 variable "dashboard_name" {
   type    = string
-  default = "jupyter-open-stg"
+  default = "CLUSTER_NAME"
 }
 
 variable "observability_namespace" {

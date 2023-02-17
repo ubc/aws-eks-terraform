@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeMemoryUtil" {
   alarm_name                = "kube-jupyter-NodeMemoryUtil"
+  count                     = var.alerts_enabled ? 1 : 0
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   metric_name               = "node_memory_utilization"
@@ -23,6 +24,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeMemoryUtil" {
 
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeCPUUtil" {
   alarm_name          = "kube-jupyter-NodeCPUUtil"
+  count               = var.alerts_enabled ? 1 : 0
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "node_cpu_utilization"
@@ -46,6 +48,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeCPUUtil" {
 
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-ClusterFailedNodeCount" {
   alarm_name          = "kube-jupyter-ClusterFailedNodeCount"
+  count               = var.alerts_enabled ? 1 : 0
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "cluster_failed_node_count"
@@ -70,6 +73,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-ClusterFailedNodeCount" {
 
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeFileSystemUtilization" {
   alarm_name          = "kube-jupyter-NodeFileSystemUtilization"
+  count               = var.alerts_enabled ? 1 : 0
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "node_filesystem_utilization"
@@ -93,6 +97,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeFileSystemUtilization" 
 
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodCPU-Util" {
   alarm_name          = "kube-jupyter-PodCPU-Util"
+  count               = var.alerts_enabled ? 1 : 0
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "pod_cpu_utilization"
@@ -116,6 +121,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodCPU-Util" {
 
 resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodMemory-Util" {
   alarm_name          = "kube-jupyter-PodMemory-Util"
+  count               = var.alerts_enabled ? 1 : 0
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "pod_memory_utilization"
