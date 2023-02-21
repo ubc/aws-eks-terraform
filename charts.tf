@@ -11,7 +11,7 @@ terraform {
 
 provider "helm" {
   kubernetes {
-    config_path= "~/.kube/config"
+    config_path = "~/.kube/config"
   }
 }
 
@@ -72,7 +72,7 @@ module "cluster_autoscaler_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 4.12"
 
-  count            = var.enable_autoscaler ? 1 : 0
+  count = var.enable_autoscaler ? 1 : 0
 
   role_name_prefix = "cluster-autoscaler"
   role_description = "IRSA role for cluster autoscaler"
@@ -91,8 +91,8 @@ module "cluster_autoscaler_irsa" {
 }
 
 resource "helm_release" "kubecost" {
-  name = "kubecost"
-  count = var.enable_kubecost ? 1 : 0
+  name       = "kubecost"
+  count      = var.enable_kubecost ? 1 : 0
   repository = "https://kubecost.github.io/cost-analyzer/"
   chart      = "cost-analyzer"
   namespace  = "default"
@@ -104,8 +104,8 @@ resource "helm_release" "kubecost" {
 }
 
 resource "helm_release" "metrics-server" {
-  name = "metrics-server"
-  count = var.enable_metricsserver ? 1 : 0
+  name       = "metrics-server"
+  count      = var.enable_metricsserver ? 1 : 0
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "default"
@@ -117,10 +117,10 @@ resource "helm_release" "metrics-server" {
 }
 
 resource "helm_release" "cert-manager" {
-  name = "cert-manager"
-  count = var.enable_certmanager ? 1 : 0
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
+  name             = "cert-manager"
+  count            = var.enable_certmanager ? 1 : 0
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
   create_namespace = true
 
   set {
@@ -135,44 +135,86 @@ resource "helm_release" "cert-manager" {
 }
 
 resource "helm_release" "container-insights" {
-  name = "container-insights"
-  repository = "https://aws.github.io/eks-charts"
-  chart = "aws-cloudwatch-metrics"
+  name             = "container-insights"
+  repository       = "https://aws.github.io/eks-charts"
+  chart            = "aws-cloudwatch-metrics"
   create_namespace = true
+  namespace        = var.observability_namespace
+  count            = var.alerts_enabled ? 1 : 0
 
   depends_on = [
     module.eks.cluster_id
   ]
-  
+
+  set {
+    name  = "clusterName"
+    value = var.cluster_name
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].key"
+    value = "hub.jupyter.org/dedicated"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].value"
+    value = "user"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].operator"
+    value = "Equal"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].effect"
+    value = "NoSchedule"
+  }
+
 }
 
 resource "helm_release" "fluent_bit_cloudwatch" {
-  name = "fluent-bit"
-  repository = "https://aws.github.io/eks-charts"
-  chart = "aws-for-fluent-bit"
+  name             = "fluent-bit"
+  repository       = "https://aws.github.io/eks-charts"
+  chart            = "aws-for-fluent-bit"
   create_namespace = true
+  namespace        = var.observability_namespace
+  count            = var.fluent_bit_enabled ? 1 : 0
   set {
-    name = "cloudWatch.region"
+    name  = "cloudWatch.region"
     value = var.region
- }
+  }
 
- set {
-  name = "cloudWatch.logGroupName"
-  value = var.fluentbit_group
- }
-  
-set {
-  name = "cloudWatch.logStreamPrefix"
-  value = var.fluentbit_stream_name
-}
+  set {
+    name  = "cloudWatch.logGroupName"
+    value = var.fluentbit_group
+  }
 
-set {
-  name = "cloudWatch.logRetentionDays"
-  value = "30"
-}
+  set {
+    name  = "cloudWatch.logStreamPrefix"
+    value = var.fluentbit_stream_name
+  }
 
-  depends_on=[
+  set {
+    name  = "cloudWatch.logRetentionDays"
+    value = "30"
+  }
+
+  set {
+    name  = "cloudwatch.tolerations[0].key"
+    value = "hub.jupyter.org/dedicated"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].value"
+    value = "user"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].operator"
+    value = "Equal"
+  }
+  set {
+    name  = "cloudwatch.tolerations[0].effect"
+    value = "NoSchedule"
+  }
+
+  depends_on = [
     module.eks.cluster_id
   ]
-  
+
 }

@@ -9,35 +9,35 @@ variable "profile" {
 
 variable "vpc_cidr" {
   description = "AWS VPC CIDR"
-  default = "10.1.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 variable "eks_node_disk_size" {
   description = "AWS EKS Node disk size in GB"
-  default = "64"
+  default     = "64"
 }
 
 variable "eks_rds_db" {
   description = "Create RDS MySQL Database"
-  default = "0"
+  default     = "0"
 }
 
 variable "vpc_private_subnets" {
   description = "Private Networks used by EKS Cluster"
-  type    = list
-  default = ["10.1.0.0/17", "10.1.128.0/24"]
+  type        = list(any)
+  default     = ["10.1.0.0/17", "10.1.128.0/24"]
 }
 
 variable "vpc_public_subnets" {
   description = "Public Networks used by EKS Cluster"
-  type    = list
-  default = ["10.1.129.0/24", "10.1.130.0/24"]
+  type        = list(any)
+  default     = ["10.1.129.0/24", "10.1.130.0/24"]
 }
 
 variable "eks_instance_types" {
   description = "List of AWS Node types available to EKS Cluster"
-  type    = list
-  default = ["t3a.xlarge", "t3a.large"]
+  type        = list(any)
+  default     = ["t3a.xlarge", "t3a.large"]
 }
 
 variable "eks_instance_type" {
@@ -132,11 +132,63 @@ variable "enable_certmanager" {
 
 variable "fluentbit_group" {
   description = "fluent bit cloudwatch log group"
-  default = "/aws/eks/fluentbit-cloudwatch/jupyter/logs"
+  default     = "/aws/eks/fluentbit-cloudwatch/jupyter/logs"
 
 }
 
 variable "fluentbit_stream_name" {
   description = "fluent bit cloudwatch log stream"
-  default = "fluentbit-jupyter"
+  default     = "fluentbit-jupyter"
 }
+
+variable "sns_name" {
+  description = "name of the sns topic"
+  default     = "jupyter-alerts"
+
+}
+
+variable "webhook_url" {
+  description = "webook url of slack"
+  default     = "SLACK_URL"
+}
+
+
+variable "alerts_enabled" {
+  description = "variable to control if alerts are enabled or disabled"
+  default     = true
+
+}
+
+variable "fluent_bit_enabled" {
+  description = "variable to control if alerts are enabled or disabled"
+  default     = true
+
+}
+
+variable "dashboard_enabled" {
+  description = "variable to control if alerts are enabled or disabled"
+  default     = true
+
+}
+
+variable "cluster_name" {
+  description = "cluster name for cloudwatch alerts"
+  default     = "CLUSTER_NAME"
+}
+
+variable "namespace" {
+  default = "ContainerInsights"
+}
+
+variable "dashboard_name" {
+  type    = string
+  default = "CLUSTER_NAME"
+}
+
+variable "observability_namespace" {
+  default = "amazon-cloudwatch"
+
+}
+
+
+
