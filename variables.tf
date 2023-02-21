@@ -159,6 +159,17 @@ variable "alerts_enabled" {
 
 }
 
+variable "fluent_bit_enabled" {
+  description = "variable to control if alerts are enabled or disabled"
+  default     = true
+
+}
+
+variable "dashboard_enabled" {
+  description = "variable to control if alerts are enabled or disabled"
+  default     = true
+
+}
 
 variable "cluster_name" {
   description = "cluster name for cloudwatch alerts"

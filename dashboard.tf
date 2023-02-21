@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
   dashboard_name = var.dashboard_name
-  count          = var.alerts_enabled ? 1 : 0
+  count          = var.dashboard_enabled ? 1 : 0
 
   dashboard_body = <<EOF
   {

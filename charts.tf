@@ -175,7 +175,7 @@ resource "helm_release" "fluent_bit_cloudwatch" {
   chart            = "aws-for-fluent-bit"
   create_namespace = true
   namespace        = var.observability_namespace
-  count            = var.alerts_enabled ? 1 : 0
+  count            = var.fluent_bit_enabled ? 1 : 0
   set {
     name  = "cloudWatch.region"
     value = var.region
