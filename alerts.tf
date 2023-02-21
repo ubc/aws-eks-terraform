@@ -11,8 +11,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeMemoryUtil" {
   datapoints_to_alarm       = "1"
   alarm_description         = "Monitor jupyter-open-prod cluster nodes for memory threshold"
   actions_enabled           = "true"
-  alarm_actions             = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions                = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions             = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions                = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data        = "ignore"
   insufficient_data_actions = []
 
@@ -35,8 +35,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeCPUUtil" {
   datapoints_to_alarm = "1"
   alarm_description   = "Monitor jupyter-open-prod cluster nodes for CPU threshold"
   actions_enabled     = "true"
-  alarm_actions       = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions          = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data  = "ignore"
 
   insufficient_data_actions = []
@@ -59,8 +59,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-ClusterFailedNodeCount" {
   datapoints_to_alarm = "1"
   alarm_description   = "Monitor jupyter-open-prod cluster nodes failed count"
   actions_enabled     = "true"
-  alarm_actions       = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions          = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data  = "ignore"
 
   insufficient_data_actions = []
@@ -84,8 +84,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeFileSystemUtilization" 
   datapoints_to_alarm = "1"
   alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
   actions_enabled     = "true"
-  alarm_actions       = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions          = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data  = "ignore"
 
   insufficient_data_actions = []
@@ -108,8 +108,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodCPU-Util" {
   datapoints_to_alarm = "1"
   alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
   actions_enabled     = "true"
-  alarm_actions       = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions          = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data  = "ignore"
 
   insufficient_data_actions = []
@@ -132,8 +132,8 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodMemory-Util" {
   datapoints_to_alarm = "1"
   alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
   actions_enabled     = "true"
-  alarm_actions       = [aws_sns_topic.cluster_alerts.arn]
-  ok_actions          = [aws_sns_topic.cluster_alerts.arn]
+  alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
+  ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
   treat_missing_data  = "ignore"
 
   insufficient_data_actions = []
