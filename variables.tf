@@ -159,7 +159,6 @@ variable "alerts_enabled" {
 
 }
 
-
 variable "fluent_bit_enabled" {
   description = "variable to control if alerts are enabled or disabled"
   default     = true
