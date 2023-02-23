@@ -110,6 +110,11 @@ resource "helm_release" "metrics-server" {
   chart      = "metrics-server"
   namespace  = "default"
 
+  set {
+    name  = "hostNetwork.enabled"
+    value = true
+  }
+
   depends_on = [
     module.eks.cluster_id,
     #null_resource.apply,
