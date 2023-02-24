@@ -189,3 +189,6 @@ variable "observability_namespace" {
   default = "amazon-cloudwatch"
 
 }
+
+
+
