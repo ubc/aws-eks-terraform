@@ -228,6 +228,15 @@ module "eks" {
   enable_irsa                 = true
   create_cloudwatch_log_group = false
   node_security_group_additional_rules = {
+
+    ingress_cluster_metricserver = {
+      description                   = "Cluster to node 4443 (Metrics Server)"
+      protocol                      = "tcp"
+      from_port                     = 4443
+      to_port                       = 4443
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
     ingress_allow_access_from_control_plane = {
       type                          = "ingress"
       protocol                      = "tcp"
