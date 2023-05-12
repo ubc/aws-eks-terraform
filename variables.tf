@@ -87,7 +87,7 @@ variable "ug_desired_cap" {
 
 variable "kube_version" {
   description = "Desired Kubernetes version for Cluster and Nodes."
-  default     = "1.22"
+  default     = "1.23"
 }
 
 variable "tag_project_name" {
