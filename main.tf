@@ -29,11 +29,11 @@ data "aws_availability_zones" "available" {}
 
 
 data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
+  name = module.eks.cluster_name
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
+  name = module.eks.cluster_name
 }
 
 locals {
@@ -177,7 +177,7 @@ resource "aws_db_subnet_group" "rds_mysql" {
 
 
 resource "null_resource" "kube_config_create" {
-  depends_on = [module.eks.cluster_id]
+  depends_on = [module.eks.cluster_name]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
@@ -220,46 +220,27 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name    = local.cluster_name
-  cluster_version = var.kube_version
+  cluster_name                   = local.cluster_name
+  cluster_version                = var.kube_version
+  cluster_endpoint_public_access = true
+  cluster_addons = {
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = "${module.ebs_csi_controller_role.iam_role_arn}"
+    }
+  }
+
+  iam_role_additional_policies = {
+
+    AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+
+  }
 
   subnet_ids                  = module.vpc.private_subnets
   vpc_id                      = module.vpc.vpc_id
   enable_irsa                 = true
   create_cloudwatch_log_group = false
   node_security_group_additional_rules = {
-
-    ingress_cluster_metricserver = {
-      description                   = "Cluster to node 4443 (Metrics Server)"
-      protocol                      = "tcp"
-      from_port                     = 4443
-      to_port                       = 4443
-      type                          = "ingress"
-      source_cluster_security_group = true
-    }
-    ingress_allow_access_from_control_plane = {
-      type                          = "ingress"
-      protocol                      = "tcp"
-      from_port                     = 9443
-      to_port                       = 9443
-      source_cluster_security_group = true
-      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
-    }
-    egress_all = {
-      protocol         = "-1"
-      from_port        = 0
-      to_port          = 0
-      type             = "egress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_self_all = {
-      protocol  = "-1"
-      from_port = 0
-      to_port   = 0
-      type      = "ingress"
-      self      = true
-    }
   }
 
   tags = merge(
@@ -294,7 +275,7 @@ module "eks" {
 
   eks_managed_node_groups = [
     {
-      name                          = "management-pods-${var.environment}"
+      name                          = "mgmt-pods-${var.environment}"
       desired_size                  = var.wg_desired_cap
       min_size                      = var.wg_min_size
       max_size                      = var.wg_max_size

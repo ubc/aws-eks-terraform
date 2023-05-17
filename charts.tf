@@ -63,7 +63,7 @@ resource "helm_release" "cluster_autoscaler" {
   }
 
   depends_on = [
-    module.eks.cluster_id,
+    module.eks.cluster_name,
     #null_resource.apply,
   ]
 }
@@ -78,7 +78,7 @@ module "cluster_autoscaler_irsa" {
   role_description = "IRSA role for cluster autoscaler"
 
   attach_cluster_autoscaler_policy = true
-  cluster_autoscaler_cluster_ids   = [module.eks.cluster_id]
+  cluster_autoscaler_cluster_ids   = [module.eks.cluster_name]
 
   oidc_providers = {
     main = {
@@ -102,6 +102,7 @@ resource "helm_release" "kubecost" {
     #null_resource.apply,
   ]
 }
+
 
 resource "helm_release" "metrics-server" {
   name       = "metrics-server"
