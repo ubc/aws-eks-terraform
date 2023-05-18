@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeMemoryUtil" {
   threshold                 = "90"
   namespace                 = var.namespace
   datapoints_to_alarm       = "1"
-  alarm_description         = "Monitor jupyter-open-prod cluster nodes for memory threshold"
+  alarm_description         = "Monitor jupyter-open-${var.environment} cluster nodes for memory threshold"
   actions_enabled           = "true"
   alarm_actions             = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions                = [aws_sns_topic.cluster_alerts[0].arn]
@@ -33,7 +33,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeCPUUtil" {
   threshold           = "90"
   namespace           = var.namespace
   datapoints_to_alarm = "1"
-  alarm_description   = "Monitor jupyter-open-prod cluster nodes for CPU threshold"
+  alarm_description   = "Monitor jupyter-open-${var.environment} cluster nodes for CPU threshold"
   actions_enabled     = "true"
   alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
@@ -57,7 +57,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-ClusterFailedNodeCount" {
   threshold           = "1"
   namespace           = var.namespace
   datapoints_to_alarm = "1"
-  alarm_description   = "Monitor jupyter-open-prod cluster nodes failed count"
+  alarm_description   = "Monitor jupyter-open-${var.environment} cluster nodes failed count"
   actions_enabled     = "true"
   alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
@@ -82,7 +82,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-NodeFileSystemUtilization" 
   threshold           = "90"
   namespace           = var.namespace
   datapoints_to_alarm = "1"
-  alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
+  alarm_description   = "Monitor jupyter-open-${var.environment} cluster nodes filesystem"
   actions_enabled     = "true"
   alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodCPU-Util" {
   threshold           = "90"
   namespace           = var.namespace
   datapoints_to_alarm = "1"
-  alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
+  alarm_description   = "Monitor jupyter-open-${var.environment} cluster nodes filesystem"
   actions_enabled     = "true"
   alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
@@ -130,7 +130,7 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodMemory-Util" {
   threshold           = "90"
   namespace           = var.namespace
   datapoints_to_alarm = "1"
-  alarm_description   = "Monitor jupyter-open-prod cluster nodes filesystem"
+  alarm_description   = "Monitor jupyter-open-${var.environment} cluster nodes filesystem"
   actions_enabled     = "true"
   alarm_actions       = [aws_sns_topic.cluster_alerts[0].arn]
   ok_actions          = [aws_sns_topic.cluster_alerts[0].arn]
