@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name               = "slack-lambda-role"
+  name               = "${var.environment}-slack-lambda-role"
   count              = var.alerts_enabled ? 1 : 0
   assume_role_policy = <<EOF
 {
@@ -20,7 +20,7 @@ EOF
 
 resource "aws_iam_policy" "iam_policy_for_lambda" {
 
-  name        = "aws_iam_policy_for_terraform_aws_lambda_role"
+  name        = "${var.environment}-aws_iam_policy_for_terraform_aws_lambda_role"
   count       = var.alerts_enabled ? 1 : 0
   path        = "/"
   description = "AWS IAM Policy for managing aws lambda role"
@@ -57,7 +57,7 @@ data "archive_file" "zip_lambda" {
 resource "aws_lambda_function" "slack_lambda" {
   filename      = "${path.module}/lambda-slack/slack.zip"
   count         = var.alerts_enabled ? 1 : 0
-  function_name = "slack-alert"
+  function_name = "${var.environment}-slack-alert"
   role          = aws_iam_role.lambda_role[0].arn
   handler       = "slack.lambda_handler"
   runtime       = "python3.8"

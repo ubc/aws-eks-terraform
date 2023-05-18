@@ -1,5 +1,5 @@
 resource "aws_sns_topic" "cluster_alerts" {
-  name  = "jupyter-open-cluster-alerts"
+  name  = "${var.environment}-jupyter-open-cluster-alerts"
   count = var.alerts_enabled ? 1 : 0
 }
 
