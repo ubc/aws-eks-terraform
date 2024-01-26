@@ -22,6 +22,7 @@ provider "helm" {
 # https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler
 ################################################################################
 
+
 resource "helm_release" "cluster_autoscaler" {
   name             = "cluster-autoscaler"
   count            = var.enable_autoscaler ? 1 : 0
@@ -219,3 +220,4 @@ resource "helm_release" "fluent_bit_cloudwatch" {
   ]
 
 }
+
