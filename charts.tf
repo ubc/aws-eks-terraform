@@ -221,8 +221,6 @@ resource "helm_release" "fluent_bit_cloudwatch" {
 
 }
 
-<<<<<<< Updated upstream
-=======
 # resource "helm_release" "kube2iam" {
 #   name = "kube2iam"
 #   repository = "https://jtblin.github.io/kube2iam"
@@ -230,7 +228,7 @@ resource "helm_release" "fluent_bit_cloudwatch" {
 #   create_namespace = true
 #   namespace = var.kube2iam_namespace
 #   count = var.kube2iam_enabled ? 1:0
-# 
+#
 
 resource "helm_release" "velero" {
   name = "velero"
@@ -243,7 +241,7 @@ resource "helm_release" "velero" {
     name = "configuration.backupStorageLocation[0].name"
     value = "velero-stg"
   }
-  
+
   set {
     name = "configuration.backupStorageLocation[0].provider"
     value = "aws"
@@ -263,7 +261,7 @@ resource "helm_release" "velero" {
     name = "credentials.existingSecret"
     value = "velero-iam"
   }
-  
+
   set {
     name = "configuration.volumeSnapshotLocation[0].name"
     value = "velero-stg"
@@ -279,4 +277,3 @@ resource "helm_release" "velero" {
     value = "velero-stg"
   }
 }
->>>>>>> Stashed changes

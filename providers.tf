@@ -1,9 +1,5 @@
 provider "aws" {
-<<<<<<< Updated upstream
   profile = "default"
-=======
-  profile= "default"
->>>>>>> Stashed changes
   region = var.region
 }
 
