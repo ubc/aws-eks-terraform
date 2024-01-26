@@ -221,3 +221,62 @@ resource "helm_release" "fluent_bit_cloudwatch" {
 
 }
 
+<<<<<<< Updated upstream
+=======
+# resource "helm_release" "kube2iam" {
+#   name = "kube2iam"
+#   repository = "https://jtblin.github.io/kube2iam"
+#   chart = "kube2iam"
+#   create_namespace = true
+#   namespace = var.kube2iam_namespace
+#   count = var.kube2iam_enabled ? 1:0
+# 
+
+resource "helm_release" "velero" {
+  name = "velero"
+  repository = "https://vmware-tanzu.github.io/helm-charts"
+  chart = "velero"
+  create_namespace = true
+  namespace = var.velero_namespace
+  count = var.velero_enabled ? 1:0
+  set {
+    name = "configuration.backupStorageLocation[0].name"
+    value = "velero-stg"
+  }
+  
+  set {
+    name = "configuration.backupStorageLocation[0].provider"
+    value = "aws"
+  }
+
+  set {
+    name = "configuration.backupStorageLocation[0].bucket"
+    value = "velero-jupyterhub"
+  }
+
+  set {
+    name = "configuration.backupStorageLocation[0].prefix"
+    value = "velero-stg"
+  }
+
+  set {
+    name = "credentials.existingSecret"
+    value = "velero-iam"
+  }
+  
+  set {
+    name = "configuration.volumeSnapshotLocation[0].name"
+    value = "velero-stg"
+  }
+
+  set {
+    name = "configuration.volumeSnapshotLocation[0].provider"
+    value = "aws"
+  }
+
+  set {
+    name = "configuration.defaultBackupStorageLocation"
+    value = "velero-stg"
+  }
+}
+>>>>>>> Stashed changes

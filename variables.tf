@@ -190,5 +190,23 @@ variable "observability_namespace" {
 
 }
 
+variable "velero_namespace" {
+  default = "velero"
+}
 
+variable "velero_enabled" {
+  description = "variable to control if velero tool is enabled or disabled"
+  default = true
+}
 
+variable "kube2iam_namespace" {
+  default = "kube2iam"
+}
+
+variable "kube2iam_enabled" {
+  description = "variable to control if kube2iam tool is enabled or disabled"
+}
+
+variable "velero_bucket_name" {
+  default = "velero-jupyterhub"
+}
