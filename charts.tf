@@ -22,7 +22,6 @@ provider "helm" {
 # https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler
 ################################################################################
 
-
 resource "helm_release" "cluster_autoscaler" {
   name             = "cluster-autoscaler"
   count            = var.enable_autoscaler ? 1 : 0
@@ -99,11 +98,10 @@ resource "helm_release" "kubecost" {
   namespace  = "default"
 
   depends_on = [
-    module.eks.cluster_id,
+    module.eks.cluster_name,
     #null_resource.apply,
   ]
 }
-
 
 resource "helm_release" "metrics-server" {
   name       = "metrics-server"
@@ -113,7 +111,7 @@ resource "helm_release" "metrics-server" {
   namespace  = "default"
 
   depends_on = [
-    module.eks.cluster_id,
+    module.eks.cluster_name,
     #null_resource.apply,
   ]
 }
@@ -131,95 +129,95 @@ resource "helm_release" "cert-manager" {
   }
 
   depends_on = [
-    module.eks.cluster_id,
+    module.eks.cluster_name,
     #null_resource.apply,
   ]
 }
 
-resource "helm_release" "container-insights" {
-  name             = "container-insights"
-  repository       = "https://aws.github.io/eks-charts"
-  chart            = "aws-cloudwatch-metrics"
-  create_namespace = true
-  namespace        = var.observability_namespace
-  count            = var.alerts_enabled ? 1 : 0
+#resource "helm_release" "container-insights" {
+#  name             = "container-insights"
+#  repository       = "https://aws.github.io/eks-charts"
+#  chart            = "aws-cloudwatch-metrics"
+#  create_namespace = true
+#  namespace        = var.observability_namespace
+#  count            = var.alerts_enabled ? 1 : 0
+#
+#  depends_on = [
+#    module.eks.cluster_name
+#  ]
+#
+#  set {
+#    name  = "clusterName"
+#    value = var.cluster_name
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].key"
+#    value = "hub.jupyter.org/dedicated"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].value"
+#    value = "user"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].operator"
+#    value = "Equal"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].effect"
+#    value = "NoSchedule"
+#  }
+#
+#}
 
-  depends_on = [
-    module.eks.cluster_id
-  ]
-
-  set {
-    name  = "clusterName"
-    value = var.cluster_name
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].key"
-    value = "hub.jupyter.org/dedicated"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].value"
-    value = "user"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].operator"
-    value = "Equal"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].effect"
-    value = "NoSchedule"
-  }
-
-}
-
-resource "helm_release" "fluent_bit_cloudwatch" {
-  name             = "fluent-bit"
-  repository       = "https://aws.github.io/eks-charts"
-  chart            = "aws-for-fluent-bit"
-  create_namespace = true
-  namespace        = var.observability_namespace
-  count            = var.fluent_bit_enabled ? 1 : 0
-  set {
-    name  = "cloudWatch.region"
-    value = var.region
-  }
-
-  set {
-    name  = "cloudWatch.logGroupName"
-    value = var.fluentbit_group
-  }
-
-  set {
-    name  = "cloudWatch.logStreamPrefix"
-    value = var.fluentbit_stream_name
-  }
-
-  set {
-    name  = "cloudWatch.logRetentionDays"
-    value = "30"
-  }
-
-  set {
-    name  = "cloudwatch.tolerations[0].key"
-    value = "hub.jupyter.org/dedicated"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].value"
-    value = "user"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].operator"
-    value = "Equal"
-  }
-  set {
-    name  = "cloudwatch.tolerations[0].effect"
-    value = "NoSchedule"
-  }
-
-  depends_on = [
-    module.eks.cluster_id
-  ]
-
-}
+#resource "helm_release" "fluent_bit_cloudwatch" {
+#  name             = "fluent-bit"
+#  repository       = "https://aws.github.io/eks-charts"
+#  chart            = "aws-for-fluent-bit"
+#  create_namespace = true
+#  namespace        = var.observability_namespace
+#  count            = var.fluent_bit_enabled ? 1 : 0
+#  set {
+#    name  = "cloudWatch.region"
+#    value = var.region
+#  }
+#
+#  set {
+#    name  = "cloudWatch.logGroupName"
+#    value = var.fluentbit_group
+#  }
+#
+#  set {
+#    name  = "cloudWatch.logStreamPrefix"
+#    value = var.fluentbit_stream_name
+#  }
+#
+#  set {
+#    name  = "cloudWatch.logRetentionDays"
+#    value = "30"
+#  }
+#
+#  set {
+#    name  = "cloudwatch.tolerations[0].key"
+#    value = "hub.jupyter.org/dedicated"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].value"
+#    value = "user"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].operator"
+#    value = "Equal"
+#  }
+#  set {
+#    name  = "cloudwatch.tolerations[0].effect"
+#    value = "NoSchedule"
+#  }
+#
+#  depends_on = [
+#    module.eks.cluster_id
+#  ]
+#
+#}
 
 # resource "helm_release" "kube2iam" {
 #   name = "kube2iam"

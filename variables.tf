@@ -199,14 +199,15 @@ variable "velero_enabled" {
   default = true
 }
 
+variable "velero_bucket_name" {
+  default = "velero-jupyterhub"
+}
+
 variable "kube2iam_namespace" {
   default = "kube2iam"
 }
 
 variable "kube2iam_enabled" {
   description = "variable to control if kube2iam tool is enabled or disabled"
-}
-
-variable "velero_bucket_name" {
-  default = "velero-jupyterhub"
+  default = false
 }

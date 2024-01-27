@@ -223,12 +223,6 @@ module "eks" {
   cluster_name                   = local.cluster_name
   cluster_version                = var.kube_version
   cluster_endpoint_public_access = true
-  cluster_addons = {
-    aws-ebs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = "${module.ebs_csi_controller_role.iam_role_arn}"
-    }
-  }
 
   iam_role_additional_policies = {
 
@@ -318,7 +312,35 @@ module "eks" {
     }
   ]
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
+
+#  cluster_addons = {
+#    aws-ebs-csi-driver = {
+#      most_recent              = true
+#      resolve_conflicts        = "OVERWRITE"
+#      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
+#    }
+#  }
+  cluster_addons = {
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = "${module.ebs_csi_controller_role.iam_role_arn}"
+    }
+  }
 }
+
+#module "ebs_csi_irsa_role" {
+#  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+#
+#  role_name             = "${module.eks.cluster_name}-ebs-csi"
+#  attach_ebs_csi_policy = true
+#
+#  oidc_providers = {
+#    ex = {
+#      provider_arn               = module.eks.oidc_provider_arn
+#      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+#    }
+#  }
+#}
 
 resource "aws_iam_role_policy_attachment" "node_role_log_policy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"

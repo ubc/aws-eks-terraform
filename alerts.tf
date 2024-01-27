@@ -142,4 +142,3 @@ resource "aws_cloudwatch_metric_alarm" "kube-jupyter-PodMemory-Util" {
     ClusterName = var.cluster_name
   }
 }
-
