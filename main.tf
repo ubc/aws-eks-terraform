@@ -206,19 +206,29 @@ module "vpc" {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
     "project"                                     = "${local.tags.project}"
+    "interface"                                   = "public"
   }
 
   private_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
     "project"                                     = "${local.tags.project}"
+    "interface"                                   = "private"
   }
 }
 
+data "aws_subnet" "private_zone1a" {
+  availability_zone = "ca-central-1a"
+  vpc_id = module.vpc.vpc_id
+  filter {
+    name   = "tag:interface"
+    values = ["private"]
+  }
+}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
+  version = "~> 20.0"
 
   cluster_name                   = local.cluster_name
   cluster_version                = var.kube_version
@@ -276,8 +286,18 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template        = true
       launch_template_name          = ""
-
-
+      subnet_ids                    = [data.aws_subnet.private_zone1a.id]
+      taints = [
+#        {
+#          key    = "hub.jupyter.org/dedicated"
+#          value  = "core"
+#          effect = "NO_SCHEDULE"
+#        },
+        {
+          key    = "node-role.kubernetes.io/master"
+          effect = "NO_SCHEDULE"
+        }
+      ]
       tags = merge(
         local.tags,
         {
@@ -295,6 +315,7 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template        = true
       launch_template_name          = ""
+      subnet_ids                    = [data.aws_subnet.private_zone1a.id]
       taints = [
         {
           key    = "hub.jupyter.org/dedicated"
@@ -323,7 +344,20 @@ module "eks" {
   cluster_addons = {
     aws-ebs-csi-driver = {
       most_recent              = true
+#      resolve_conflicts        = "OVERWRITE"
+      resolve_conflicts_on_create = "OVERWRITE"
       service_account_role_arn = "${module.ebs_csi_controller_role.iam_role_arn}"
+      configuration_values = jsonencode({
+        controller: {
+          tolerations : [
+            {
+              key : "node-role.kubernetes.io/master",
+              operator : "Equal",
+              effect : "NoSchedule"
+            }
+          ]
+        }
+      })
     }
   }
 }

@@ -55,4 +55,19 @@ resource "helm_release" "lb" {
     name  = "clusterName"
     value = module.eks.cluster_name
   }
+
+  set {
+    name  = "tolerations[0].key"
+    value = "node-role.kubernetes.io/master"
+  }
+
+  set {
+    name  = "tolerations[0].operator"
+    value = "Equal"
+  }
+
+  set {
+    name  = "tolerations[0].effect"
+    value = "NoSchedule"
+  }
 }

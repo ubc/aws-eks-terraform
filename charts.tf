@@ -4,7 +4,7 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.8.0"
+      version = "~> 2.12.1"
     }
   }
 }
@@ -62,6 +62,21 @@ resource "helm_release" "cluster_autoscaler" {
     value = "true"
   }
 
+  set {
+    name  = "tolerations[0].key"
+    value = "node-role.kubernetes.io/master"
+  }
+
+  set {
+    name  = "tolerations[0].operator"
+    value = "Equal"
+  }
+
+  set {
+    name  = "tolerations[0].effect"
+    value = "NoSchedule"
+  }
+
   depends_on = [
     module.eks.cluster_name,
     #null_resource.apply,
@@ -109,6 +124,21 @@ resource "helm_release" "metrics-server" {
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "default"
+
+  set {
+    name  = "tolerations[0].key"
+    value = "node-role.kubernetes.io/master"
+  }
+
+  set {
+    name  = "tolerations[0].operator"
+    value = "Equal"
+  }
+
+  set {
+    name  = "tolerations[0].effect"
+    value = "NoSchedule"
+  }
 
   depends_on = [
     module.eks.cluster_name,
