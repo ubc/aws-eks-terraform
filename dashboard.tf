@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
+resource "aws_cloudwatch_dashboard" "jupyter-open-KubeCluster" {
   dashboard_name = var.dashboard_name
   count          = var.dashboard_enabled ? 1 : 0
 
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "id": "expr1m0", "label": "jupyter-open-stg", "expression": "(mm1m0 + mm1farm0) * 100 / (mm0m0 + mm0farm0)" } ],
+                    [ { "id": "expr1m0", "label": "${var.cluster_base_name}-${var.environment}", "expression": "(mm1m0 + mm1farm0) * 100 / (mm0m0 + mm0farm0)" } ],
                     [ "ContainerInsights", "node_cpu_limit", "ClusterName", "var.cluster_name", { "period": 300, "stat": "Sum", "id": "mm0m0", "visible": false } ],
                     [ ".", "node_cpu_usage_total", ".", ".", { "period": 300, "stat": "Sum", "id": "mm1m0", "visible": false } ],
                     [ ".", "pod_cpu_limit", ".", ".", "LaunchType", "fargate", { "period": 300, "stat": "Sum", "id": "mm0farm0", "visible": false } ],
@@ -65,7 +65,7 @@ resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "id": "expr1m0", "label": "jupyter-open-stg", "expression": "(mm1m0 + mm1farm0) * 100 / (mm0m0 + mm0farm0)" } ],
+                    [ { "id": "expr1m0", "label": "${var.cluster_base_name}-${var.environment}", "expression": "(mm1m0 + mm1farm0) * 100 / (mm0m0 + mm0farm0)" } ],
                     [ "ContainerInsights", "node_memory_limit", "ClusterName", "var.cluster_name", { "period": 300, "stat": "Sum", "id": "mm0m0", "visible": false } ],
                     [ ".", "pod_memory_limit", ".", ".", "LaunchType", "fargate", { "period": 300, "stat": "Sum", "id": "mm0farm0", "visible": false } ],
                     [ ".", "node_memory_working_set", ".", ".", { "period": 300, "stat": "Sum", "id": "mm1m0", "visible": false } ],
@@ -94,7 +94,7 @@ resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "id": "expr1m0", "label": "jupyter-open-stg", "expression": "mm0m0" } ],
+                    [ { "id": "expr1m0", "label": "${var.cluster_base_name}-${var.environment}", "expression": "mm0m0" } ],
                     [ "ContainerInsights", "cluster_failed_node_count", "ClusterName", "var.cluster_name", { "period": 300, "stat": "Average", "id": "mm0m0", "visible": false } ]
                 ],
                 "legend": {
@@ -119,7 +119,7 @@ resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "id": "expr1m0", "label": "jupyter-open-stg", "expression": "mm0m0" } ],
+                    [ { "id": "expr1m0", "label": "${var.cluster_base_name}-${var.environment}", "expression": "mm0m0" } ],
                     [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", "var.cluster_name", { "period": 300, "stat": "p90", "id": "mm0m0", "visible": false } ]
                 ],
                 "legend": {
@@ -145,7 +145,7 @@ resource "aws_cloudwatch_dashboard" "jupyter-open-stg-KubeCluster" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "id": "expr1m0", "label": "jupyter-open-stg", "expression": "mm0m0" } ],
+                    [ { "id": "expr1m0", "label": "${var.cluster_base_name}-${var.environment}", "expression": "mm0m0" } ],
                     [ "ContainerInsights", "cluster_node_count", "ClusterName", "var.cluster_name", { "period": 300, "stat": "Average", "id": "mm0m0", "visible": false } ]
                 ],
                 "legend": {
