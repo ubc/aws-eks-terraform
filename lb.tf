@@ -27,6 +27,8 @@ resource "kubernetes_service_account" "service-account" {
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
+
+  depends_on = [module.eks.access_entries]
 }
 
 # LB controller
@@ -35,6 +37,7 @@ resource "helm_release" "lb" {
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
   namespace  = "kube-system"
+  wait       = false
   depends_on = [
     kubernetes_service_account.service-account
   ]

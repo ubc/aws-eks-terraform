@@ -30,14 +30,16 @@ data "aws_availability_zones" "available" {}
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_name
+  depends_on = [module.eks]
 }
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_name
+  depends_on = [module.eks]
 }
 
 locals {
-  cluster_name                  = "jupyter-open-${var.environment}"
+  cluster_name                  = "${var.cluster_base_name}-${var.environment}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   tags = {
@@ -233,11 +235,12 @@ module "eks" {
   cluster_name                   = local.cluster_name
   cluster_version                = var.kube_version
   cluster_endpoint_public_access = true
+  # Gives Terraform identity admin access to cluster which will
+  # allow deploying resources into the cluster
+  enable_cluster_creator_admin_permissions = true
 
   iam_role_additional_policies = {
-
     AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-
   }
 
   subnet_ids                  = module.vpc.private_subnets
@@ -334,17 +337,9 @@ module "eks" {
   ]
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
 
-#  cluster_addons = {
-#    aws-ebs-csi-driver = {
-#      most_recent              = true
-#      resolve_conflicts        = "OVERWRITE"
-#      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
-#    }
-#  }
   cluster_addons = {
     aws-ebs-csi-driver = {
       most_recent              = true
-#      resolve_conflicts        = "OVERWRITE"
       resolve_conflicts_on_create = "OVERWRITE"
       service_account_role_arn = "${module.ebs_csi_controller_role.iam_role_arn}"
       configuration_values = jsonencode({

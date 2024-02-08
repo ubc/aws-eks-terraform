@@ -11,7 +11,14 @@ terraform {
 
 provider "helm" {
   kubernetes {
-    config_path = "~/.kube/config"
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+      command     = "aws"
+    }
+#    load_config_file       = false
   }
 }
 
@@ -30,6 +37,7 @@ resource "helm_release" "cluster_autoscaler" {
   chart            = "cluster-autoscaler"
   version          = "9.21.1"
   create_namespace = false
+  wait             = false
 
   set {
     name  = "awsRegion"
@@ -78,14 +86,14 @@ resource "helm_release" "cluster_autoscaler" {
   }
 
   depends_on = [
-    module.eks.cluster_name,
+    module.cluster_autoscaler_irsa.iam_role_arn,
     #null_resource.apply,
   ]
 }
 
 module "cluster_autoscaler_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~> 4.12"
+  version = "~> 5.30"
 
   count = var.enable_autoscaler ? 1 : 0
 
@@ -93,7 +101,7 @@ module "cluster_autoscaler_irsa" {
   role_description = "IRSA role for cluster autoscaler"
 
   attach_cluster_autoscaler_policy = true
-  cluster_autoscaler_cluster_ids   = [module.eks.cluster_name]
+  cluster_autoscaler_cluster_names = [module.eks.cluster_name]
 
   oidc_providers = {
     main = {
@@ -111,9 +119,10 @@ resource "helm_release" "kubecost" {
   repository = "https://kubecost.github.io/cost-analyzer/"
   chart      = "cost-analyzer"
   namespace  = "default"
+  wait       = false
 
   depends_on = [
-    module.eks.cluster_name,
+    module.eks
     #null_resource.apply,
   ]
 }
@@ -124,6 +133,7 @@ resource "helm_release" "metrics-server" {
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   namespace  = "default"
+  wait       = false
 
   set {
     name  = "tolerations[0].key"
@@ -141,7 +151,7 @@ resource "helm_release" "metrics-server" {
   }
 
   depends_on = [
-    module.eks.cluster_name,
+    module.eks
     #null_resource.apply,
   ]
 }
@@ -159,7 +169,7 @@ resource "helm_release" "cert-manager" {
   }
 
   depends_on = [
-    module.eks.cluster_name,
+    module.eks
     #null_resource.apply,
   ]
 }
@@ -265,6 +275,8 @@ resource "helm_release" "velero" {
   create_namespace = true
   namespace = var.velero_namespace
   count = var.velero_enabled ? 1:0
+  wait = false
+
   set {
     name = "configuration.backupStorageLocation[0].name"
     value = "velero-stg"
@@ -304,4 +316,9 @@ resource "helm_release" "velero" {
     name = "configuration.defaultBackupStorageLocation"
     value = "velero-stg"
   }
+
+  depends_on = [
+    module.eks
+    #null_resource.apply,
+  ]
 }

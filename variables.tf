@@ -156,19 +156,16 @@ variable "webhook_url" {
 variable "alerts_enabled" {
   description = "variable to control if alerts are enabled or disabled"
   default     = true
-
 }
 
 variable "fluent_bit_enabled" {
   description = "variable to control if alerts are enabled or disabled"
   default     = true
-
 }
 
 variable "dashboard_enabled" {
   description = "variable to control if alerts are enabled or disabled"
   default     = true
-
 }
 
 variable "cluster_name" {
