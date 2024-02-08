@@ -230,7 +230,7 @@ data "aws_subnet" "private_zone1a" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  version = "~> 20.1"
 
   cluster_name                   = local.cluster_name
   cluster_version                = var.kube_version

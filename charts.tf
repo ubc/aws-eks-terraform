@@ -87,6 +87,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   depends_on = [
     module.cluster_autoscaler_irsa.iam_role_arn,
+    module.eks.access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -122,7 +123,7 @@ resource "helm_release" "kubecost" {
   wait       = false
 
   depends_on = [
-    module.eks
+    module.eks.access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -151,7 +152,7 @@ resource "helm_release" "metrics-server" {
   }
 
   depends_on = [
-    module.eks
+    module.eks.access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -169,7 +170,7 @@ resource "helm_release" "cert-manager" {
   }
 
   depends_on = [
-    module.eks
+    module.eks.access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -318,7 +319,7 @@ resource "helm_release" "velero" {
   }
 
   depends_on = [
-    module.eks
+    module.eks.access_policy_associations
     #null_resource.apply,
   ]
 }
