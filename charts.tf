@@ -22,6 +22,13 @@ provider "helm" {
   }
 }
 
+# It seems the access policy associations has some delay after creations.
+# Sleep 30s to allow the association fully applied.
+resource "time_sleep" "delay_access_policy_associations" {
+  depends_on = [module.eks.access_policy_associations]
+
+  create_duration = "30s"
+}
 
 ################################################################################
 # Cluster Autoscaler
@@ -87,7 +94,7 @@ resource "helm_release" "cluster_autoscaler" {
 
   depends_on = [
     module.cluster_autoscaler_irsa.iam_role_arn,
-    module.eks.access_policy_associations
+    time_sleep.delay_access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -123,7 +130,7 @@ resource "helm_release" "kubecost" {
   wait       = false
 
   depends_on = [
-    module.eks.access_policy_associations
+    time_sleep.delay_access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -170,7 +177,7 @@ resource "helm_release" "cert-manager" {
   }
 
   depends_on = [
-    module.eks.access_policy_associations
+    time_sleep.delay_access_policy_associations
     #null_resource.apply,
   ]
 }
@@ -319,7 +326,7 @@ resource "helm_release" "velero" {
   }
 
   depends_on = [
-    module.eks.access_policy_associations
+    time_sleep.delay_access_policy_associations
     #null_resource.apply,
   ]
 }

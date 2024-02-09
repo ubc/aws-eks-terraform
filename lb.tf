@@ -28,7 +28,7 @@ resource "kubernetes_service_account" "service-account" {
     }
   }
 
-  depends_on = [module.eks.access_entries]
+  depends_on = [time_sleep.delay_access_policy_associations]
 }
 
 # LB controller

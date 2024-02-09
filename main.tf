@@ -226,6 +226,7 @@ data "aws_subnet" "private_zone1a" {
     name   = "tag:interface"
     values = ["private"]
   }
+  depends_on = [module.vpc.private_subnets]
 }
 
 module "eks" {
