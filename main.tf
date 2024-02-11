@@ -238,7 +238,7 @@ module "eks" {
   cluster_endpoint_public_access = true
   # Gives Terraform identity admin access to cluster which will
   # allow deploying resources into the cluster
-  enable_cluster_creator_admin_permissions = true
+  enable_cluster_creator_admin_permissions = var.enable_cluster_creator_admin_permissions
 
   iam_role_additional_policies = {
     AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"

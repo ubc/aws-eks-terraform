@@ -208,3 +208,8 @@ variable "kube2iam_enabled" {
   description = "variable to control if kube2iam tool is enabled or disabled"
   default = false
 }
+
+variable "enable_cluster_creator_admin_permissions" {
+  description = "Indicates whether or not to add the cluster creator (the identity used by Terraform) as an administrator via access entry"
+  default = true
+}
