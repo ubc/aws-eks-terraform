@@ -354,6 +354,21 @@ module "eks" {
           ]
         }
       })
+    },
+    aws-efs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.attach_efs_csi_role.iam_role_arn
+      configuration_values = jsonencode({
+        controller: {
+          tolerations : [
+            {
+              key : "node-role.kubernetes.io/master",
+              operator : "Equal",
+              effect : "NoSchedule"
+            }
+          ]
+        }
+      })
     }
   }
 }
@@ -377,48 +392,3 @@ resource "aws_iam_role_policy_attachment" "node_role_log_policy" {
   role       = module.eks.eks_managed_node_groups[0].iam_role_name
 }
 
-resource "aws_efs_file_system" "home" {
-  tags = local.tags
-}
-
-resource "aws_efs_mount_target" "home_mount" {
-  count           = length(module.vpc.private_subnets)
-  file_system_id  = aws_efs_file_system.home.id
-  subnet_id       = element(module.vpc.private_subnets, count.index)
-  security_groups = [aws_security_group.efs_mt_sg.id]
-}
-
-resource "aws_security_group" "efs_mt_sg" {
-  name_prefix = "aws-sg-efs-${local.cluster_name}"
-  description = "Allow NFSv4 traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  ingress {
-    from_port = 2049
-    to_port   = 2049
-    protocol  = "tcp"
-
-    cidr_blocks = [
-      "10.1.0.0/16"
-    ]
-  }
-
-  tags = local.tags
-}
-
-resource "aws_efs_file_system" "course" {
-  encrypted = true
-  tags      = local.tags
-}
-
-resource "aws_efs_mount_target" "course_mount" {
-  count           = length(module.vpc.private_subnets)
-  file_system_id  = aws_efs_file_system.course.id
-  subnet_id       = element(module.vpc.private_subnets, count.index)
-  security_groups = [aws_security_group.efs_mt_sg.id]
-
-}
