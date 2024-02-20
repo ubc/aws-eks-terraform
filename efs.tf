@@ -1,7 +1,7 @@
 module "attach_efs_csi_role" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-  role_name             = "efs-csi"
+  role_name             = "efs-csi-${local.cluster_name}"
   attach_efs_csi_policy = true
 
   oidc_providers = {
