@@ -75,3 +75,21 @@ resource "aws_efs_mount_target" "course_mount" {
   subnet_id       = element(module.vpc.private_subnets, count.index)
   security_groups = [aws_security_group.efs_mt_sg.id]
 }
+
+resource "kubernetes_persistent_volume" "home" {
+  metadata {
+    name = "home"
+  }
+  spec {
+    capacity = {
+      storage = "5Gi"
+    }
+    access_modes = ["ReadWriteMany"]
+    persistent_volume_source {
+      csi {
+        driver = "efs.csi.aws.com"
+        volume_handle = aws_efs_file_system.home.id
+      }
+    }
+  }
+}
