@@ -7,6 +7,16 @@ variable "profile" {
   default     = "default"
 }
 
+variable "assume_role_profile" {
+  description = "AWS profile to use for AssumeRole for another account, set it the same as profile var to use single AWS account"
+  default     = "default"
+}
+
+variable "assume_role_arn" {
+  description = "AWS ARN for assume role in another account"
+  default = ""
+}
+
 variable "vpc_cidr" {
   description = "AWS VPC CIDR"
   default     = "10.1.0.0/16"

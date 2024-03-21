@@ -182,7 +182,7 @@ resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_name]
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command     = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
+    command     = "aws eks --region ${var.region} update-kubeconfig --name ${local.cluster_name} --profile=${var.assume_role_profile} && export KUBE_CONFIG_PATH=~/.kube/config && export KUBERNETES_MASTER=~/.kube/config"
   }
 }
 
@@ -339,6 +339,22 @@ module "eks" {
   cluster_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
 
   cluster_addons = {
+    coredns = {
+      most_recent = true
+      configuration_values = jsonencode({
+        tolerations : [
+          {
+            key : "node-role.kubernetes.io/master",
+            operator : "Equal",
+            effect : "NoSchedule"
+          },
+          {
+            key : "CriticalAddonsOnly",
+            operator : "Exists"
+          }
+        ]
+      })
+    }
     aws-ebs-csi-driver = {
       most_recent              = true
       resolve_conflicts_on_create = "OVERWRITE"

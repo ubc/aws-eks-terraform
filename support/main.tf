@@ -14,13 +14,12 @@ terraform {
 
 provider "aws" {
   shared_credentials_files = ["$HOME/.aws/credentials"]
-  #  profile                 = "default"
   region = var.aws_region
 }
 
 # create a dynamodb table for locking the state file
 resource "aws_dynamodb_table" "terraform-locks" {
-  name         = "terraformlocks-openjupyter"
+  name         = "terraformlocks-jupyter"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 

@@ -29,7 +29,7 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
 
   In order to deploy the cluster you will need a client, with the software listed in the **Requirements** section installed, and an internet connection.
 
-  It may be wize to setup an EC2 VM as a Bastion/Jumpbox to be used as the client. If this is prefered, Deploy a Debian or Ubuntu VM and run the following commands on it.
+  It may be wise to set up an EC2 VM as a Bastion/Jumpbox to be used as the client. If this is preferred, Deploy a Debian or Ubuntu VM and run the following commands on it.
 
   ```bash
   $ git clone https://github.com/ubc/aws-eks-terraform.git my-first-eks-cluster
@@ -75,6 +75,11 @@ A lazymans Terraform deployment of an AWS EKS cluster with Managed Hosts and Aut
  **Notes:**
  Some regions do not have the same Instance Types as others. During deployment you may encouter a terraform error stating which instance types are incompatible. Remove the incompatible instance types from the variable "eks_instance_types" and ensure that the variable "eks_instance_type" is set to one of the Instance Types listed in the variable "eks_instance_types".
 
+### Create S3 Bucket for storing TF state files
+
+```bash
+aws s3api create-bucket --bucket jupyter-ubc-ca-terraform-tfstate --create-bucket-configuration LocationConstraint=ca-central-1
+```
 
 ### Deploy Cluster
 

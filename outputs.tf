@@ -211,12 +211,12 @@ output "self_managed_node_groups_autoscaling_group_names" {
 #  value       = module.eks.aws_auth_configmap_yaml
 #}
 
-output "rds_endpoint_address" {
-  description = "RDS endpoint address for Shibboleth"
-  value       = aws_db_instance.rds[0].address
-}
-
-output "rds_endpoint_port" {
-  description = "RDS endpoint port for Shibboleth"
-  value       = aws_db_instance.rds[0].port
-}
+#output "rds_endpoint_address" {
+#  description = "RDS endpoint address for Shibboleth"
+#  value       = aws_db_instance.rds[0].address
+#}
+#
+#output "rds_endpoint_port" {
+#  description = "RDS endpoint port for Shibboleth"
+#  value       = aws_db_instance.rds[0].port
+#}
