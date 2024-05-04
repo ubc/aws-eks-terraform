@@ -76,14 +76,22 @@ resource "aws_efs_mount_target" "course_mount" {
   security_groups = [aws_security_group.efs_mt_sg.id]
 }
 
+resource "kubernetes_storage_class" "efs" {
+  metadata {
+    name = "efs"
+  }
+  storage_provisioner = "efs.csi.aws.com"
+}
+
 resource "kubernetes_persistent_volume" "home" {
   metadata {
     name = "home"
   }
   spec {
     capacity = {
-      storage = "5Gi"
+      storage = "10Gi"
     }
+    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       csi {
@@ -91,5 +99,21 @@ resource "kubernetes_persistent_volume" "home" {
         volume_handle = aws_efs_file_system.home.id
       }
     }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim" "home" {
+  metadata {
+    name = "home"
+  }
+  spec {
+    access_modes = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+    volume_name = kubernetes_persistent_volume.home.metadata[0].name
+    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
   }
 }
