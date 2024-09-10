@@ -223,3 +223,21 @@ variable "enable_cluster_creator_admin_permissions" {
   description = "Indicates whether or not to add the cluster creator (the identity used by Terraform) as an administrator via access entry"
   default = true
 }
+
+variable "enable_dhcp_options" {
+  description = "Should be true if you want to specify a DHCP options set with a custom domain name, DNS servers, NTP servers, netbios servers, and/or netbios server type"
+  type        = bool
+  default     = true
+}
+
+variable "dhcp_options_domain_name" {
+  description = "Specifies DNS name for DHCP options set (requires enable_dhcp_options set to true)"
+  type        = string
+  default     = ""
+}
+
+variable "dhcp_options_domain_name_servers" {
+  description = "Specify a list of DNS server addresses for DHCP options set, default to AWS provided (requires enable_dhcp_options set to true)"
+  type        = list(string)
+  default     = ["AmazonProvidedDNS"]
+}
