@@ -198,8 +198,9 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
-  enable_dhcp_options  = true
-  dhcp_options_domain_name  = var.dhcp_options_domain_name
+  enable_dhcp_options              = var.enable_dhcp_options
+  dhcp_options_domain_name         = var.dhcp_options_domain_name
+  dhcp_options_domain_name_servers = var.dhcp_options_domain_name_servers 
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
