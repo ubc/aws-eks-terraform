@@ -200,7 +200,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dhcp_options              = var.enable_dhcp_options
   dhcp_options_domain_name         = var.dhcp_options_domain_name
-  dhcp_options_domain_name_servers = var.dhcp_options_domain_name_servers 
+  dhcp_options_domain_name_servers = var.dhcp_options_domain_name_servers
 
   tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
@@ -234,7 +234,7 @@ data "aws_subnet" "private_zone1a" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.1"
+  version = "~> 20.24"
 
   cluster_name                   = local.cluster_name
   cluster_version                = var.kube_version
