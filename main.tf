@@ -388,6 +388,32 @@ module "eks" {
           ]
         }
       })
+    },
+    /*
+    This addon has to be manually patched as toleration set below is no picked up by deployment. Use the following
+    command to add the toleration:
+    ```
+    kubectl patch deployment amazon-cloudwatch-observability-controller-manager -n amazon-cloudwatch --type='merge' -p 'spec:
+  template:
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Equal"
+        effect: "NoSchedule"'
+     ```
+     */
+    amazon-cloudwatch-observability = {
+      most_recent              = true
+#       service_account_role_arn = module.attach_efs_csi_role.iam_role_arn
+      configuration_values = jsonencode({
+          tolerations : [
+            {
+              key : "node-role.kubernetes.io/master",
+              operator : "Equal",
+              effect : "NoSchedule"
+            }
+          ]
+      })
     }
   }
 }
