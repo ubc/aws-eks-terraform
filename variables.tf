@@ -241,3 +241,13 @@ variable "dhcp_options_domain_name_servers" {
   type        = list(string)
   default     = ["AmazonProvidedDNS"]
 }
+
+variable "aws_load_balancer_controller_chart_version" {
+  description = "The chart version of the aws load balancer controller"
+  default = "1.4.7"
+}
+
+variable "cluster_autoscaler_chart_version" {
+  description = "The chart version of the cluster autoscaler"
+  default = "9.21.1"
+}
