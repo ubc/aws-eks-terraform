@@ -406,14 +406,31 @@ module "eks" {
       most_recent              = true
 #       service_account_role_arn = module.attach_efs_csi_role.iam_role_arn
       configuration_values = jsonencode({
-          tolerations : [
-            {
-              key : "node-role.kubernetes.io/master",
-              operator : "Equal",
-              effect : "NoSchedule"
+        "agent": {
+          "config" : {
+            "logs" : {
+              "metrics_collected" : {
+                "application_signals" : {},
+                "kubernetes" : {
+                  "enhanced_container_insights" : true
+                  "accelerated_compute_metrics": false
+                }
+              }
+            },
+            "traces" : {
+              "traces_collected" : {
+                "application_signals" : {}
+              }
             }
-          ]
+          }
+        }
       })
+    },
+    kube-proxy = {
+      most_recent = true
+    },
+    eks-pod-identity-agent = {
+      most_recent = true
     }
   }
 }
