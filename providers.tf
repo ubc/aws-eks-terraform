@@ -1,3 +1,17 @@
+# This section was added to lock the specific version of Terraform providers
+# terraform init upgrades providers to the latest versions which sometimes break the configuraiton
+terraform {
+  reguired_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.95.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.12.1"
+    }  
+  }
+}
 provider "aws" {
   profile = var.profile
   region = var.region

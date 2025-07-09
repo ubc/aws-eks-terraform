@@ -189,6 +189,9 @@ resource "null_resource" "kube_config_create" {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+# This section was added to lock the version of Terraform modules
+# terraform init -upgrade command downloads the newer versions of modules which sometimes break the configuraiton
+  version = "5.21.0"
 
   name                 = "vpc-${local.cluster_name}"
   cidr                 = var.vpc_cidr
