@@ -1,7 +1,7 @@
 # This section was added to lock the specific version of Terraform providers
 # terraform init upgrades providers to the latest versions which sometimes break the configuraiton
 terraform {
-  reguired_providers {
+  required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "5.95.0"
