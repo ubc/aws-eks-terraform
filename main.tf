@@ -293,6 +293,7 @@ module "eks" {
       desired_size                  = var.wg_desired_cap
       min_size                      = var.wg_min_size
       max_size                      = var.wg_max_size
+      ami_type                      = var.eks_node_ami_type
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template        = true
       launch_template_name          = ""
@@ -322,6 +323,7 @@ module "eks" {
       desired_size                  = var.ug_desired_cap
       min_size                      = var.ug_min_size
       max_size                      = var.ug_max_size
+      ami_type                      = var.eks_node_ami_type
       additional_security_group_ids = [aws_security_group.all_worker_mgmt.id, aws_security_group.rds_mysql.id, aws_security_group.efs_mt_sg.id]
       create_launch_template        = true
       launch_template_name          = ""

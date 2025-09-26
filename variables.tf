@@ -55,6 +55,12 @@ variable "eks_instance_type" {
   default     = "t3a.large"
 }
 
+variable "eks_node_ami_type" {
+  description = "AMI type for EKS managed node groups"
+  type        = string
+  default     = "AL2023_x86_64_STANDARD"
+}
+
 variable "cluster_base_name" {
   description = "Base/Prefix Name of EKS Cluster"
   default     = "jupyterhub"
