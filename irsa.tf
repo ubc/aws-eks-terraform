@@ -1,5 +1,8 @@
 module "iam_assumable_role_admin" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+# This section was added to lock the version of Terraform modules
+# terraform init -upgrade command downloads the newer versions of modules which sometimes break the configuraiton
+  version = "5.59.0"
   create_role                   = true
   role_name                     = "cluster-autoscaler-${random_string.suffix.result}"
   provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
