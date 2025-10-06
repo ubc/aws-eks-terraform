@@ -1,5 +1,8 @@
 module "attach_efs_csi_role" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+# This section was added to lock the version of Terraform modules
+# terraform init -upgrade command downloads the newer versions of modules which sometimes break the configuraiton
+  version = "5.59.0"
 
   role_name             = "efs-csi-${local.cluster_name}"
   attach_efs_csi_policy = true
