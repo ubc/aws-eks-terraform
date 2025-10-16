@@ -6,7 +6,10 @@ module "iam_assumable_role_admin" {
   create_role                   = true
   role_name                     = "cluster-autoscaler-${random_string.suffix.result}"
   provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
-  role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
+  role_policy_arns              = [
+    aws_iam_policy.cluster_autoscaler.arn, 
+    aws_iam_policy.ecr_pull_through_cache.arn
+  ]
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
 }
 
@@ -57,3 +60,26 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
     }
   }
 }
+
+
+resource "aws_iam_policy" "ecr_pull_through_cache" {
+  name_prefix = "ecr-pull-through-cache"
+  description = "Allow EKS pods to use ECR pull-through cache (auto-create repos and import images)"
+  policy      = data.aws_iam_policy_document.ecr_pull_through_cache.json
+}
+
+data "aws_iam_policy_document" "ecr_pull_through_cache" {
+  statement {
+    sid    = "PullThroughCacheFromReadOnlyRole"
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchImportUpstreamImage",
+      "ecr:ReplicateImage",
+      "ecr:CreateRepository"
+    ]
+
+    resources = [
+      "arn:aws:ecr:ca-central-1:${data.aws_caller_identity.current.account_id}:repository/quay/*"
+    ]
+  }
