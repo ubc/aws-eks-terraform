@@ -83,3 +83,4 @@ data "aws_iam_policy_document" "ecr_pull_through_cache" {
       "arn:aws:ecr:ca-central-1:${data.aws_caller_identity.current.account_id}:repository/quay/*"
     ]
   }
+}
