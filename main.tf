@@ -249,7 +249,7 @@ module "eks" {
   iam_role_additional_policies = {
     AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   }
-
+ 
   subnet_ids                  = module.vpc.private_subnets
   vpc_id                      = module.vpc.vpc_id
   enable_irsa                 = true
@@ -459,3 +459,12 @@ resource "aws_iam_role_policy_attachment" "node_role_log_policy" {
   role       = module.eks.eks_managed_node_groups[0].iam_role_name
 }
 
+resource "aws_iam_role_policy_attachment" "mgmt_pods_node_group_ECRPullThroughCachePolicy" {
+  policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/ECRPullThroughCachePolicy"
+  role       = module.eks.eks_managed_node_groups[0].iam_role_name
+}
+
+resource "aws_iam_role_policy_attachment" "user_pods_node_group_ECRPullThroughCachePolicy" {
+  policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/ECRPullThroughCachePolicy"
+  role       = module.eks.eks_managed_node_groups[1].iam_role_name
+}
