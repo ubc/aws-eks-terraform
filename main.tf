@@ -187,7 +187,7 @@ resource "aws_security_group" "vpce_sg" {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [module.eks.aws_security_group.node[0].id]
+    security_groups = [module.eks.node_security_group_id]
   }
 
   egress {
@@ -195,7 +195,7 @@ resource "aws_security_group" "vpce_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [module.eks.node_security_group_id]
   }
 
   tags = local.tags
