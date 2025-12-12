@@ -177,6 +177,53 @@ resource "aws_db_subnet_group" "rds_mysql" {
   tags = local.tags
 }
 
+# Create security group for VPC endpoint
+resource "aws_security_group" "vpce_sg" {
+  name_prefix = "vpce-sg-${local.cluster_name}"
+  vpc_id      = module.vpc.vpc_id
+
+   ingress {
+    description     = "Allow EKS nodes to access ECR VPC endpoints"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [module.eks.node_security_group_id]
+  }
+
+  egress {
+    description = "Allow all outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    security_groups = [module.eks.node_security_group_id]
+  }
+
+  tags = local.tags
+}
+
+# VPC endpoint for ECR DKR
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id            = module.vpc.vpc_id
+  service_name      = "com.amazonaws.ca-central-1.ecr.dkr"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = [data.aws_subnet.private_zone1a.id]
+  security_group_ids = [aws_security_group.vpce_sg.id]
+  private_dns_enabled = true
+
+  tags = local.tags
+}
+
+# VPC endpoint for ECR API
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id            = module.vpc.vpc_id
+  service_name      = "com.amazonaws.ca-central-1.ecr.api"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = [data.aws_subnet.private_zone1a.id]
+  security_group_ids = [aws_security_group.vpce_sg.id]
+  private_dns_enabled = true
+
+  tags = local.tags
+}
 
 resource "null_resource" "kube_config_create" {
   depends_on = [module.eks.cluster_name]
