@@ -61,6 +61,12 @@ variable "eks_node_ami_type" {
   default     = "AL2023_x86_64_STANDARD"
 }
 
+variable "ami_release_version" {
+  description = "AMI version for EKS managed node groups"
+  type        = string
+  default     = null
+}
+
 variable "cluster_base_name" {
   description = "Base/Prefix Name of EKS Cluster"
   default     = "jupyterhub"

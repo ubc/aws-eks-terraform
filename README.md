@@ -128,9 +128,23 @@ aws s3api create-bucket --bucket jupyter-ubc-ca-terraform-tfstate --create-bucke
   $ terraform destroy -var-file=ENV.tfvar
   ```
 
+## Update
+
+### Update AMI image
+
+To retrieve the latest release_version:
+```bash
+export K8S_VERSION=1.33
+aws ssm get-parameters-by-path --path /aws/service/eks/optimized-ami/$K8S_VERSION/amazon-linux-2023/x86_64/standard/recommended/ --region ca-central-1 --query "Parameters[?ends_with(Name, 'release_version')].Value" --output text
+```
+Update `ami_release_version` variable in the `jupyter-open-ENV.tfvars` file, then run terraform:
+```bash
+terraform apply -var-file=ENV.tfvar
+```
+
 ## Support
 
-  Please open an issue on GitHub. The support will be based on best effort basis.
+  Please open an issue on GitHub. The support will be based on the best effort basis.
 
 ## References
 

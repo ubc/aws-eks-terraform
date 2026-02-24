@@ -313,6 +313,7 @@ module "eks" {
   )
 
   eks_managed_node_group_defaults = {
+    ami_release_version = var.ami_release_version
     disk_size         = var.eks_node_disk_size
     instance_types    = var.eks_instance_types
     instance_type     = var.eks_instance_type
